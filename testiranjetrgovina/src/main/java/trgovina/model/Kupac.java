@@ -13,6 +13,7 @@ public class Kupac {
 	private String prezime;
 	private String email;	
 	private List<Racun> zatvoreniRacuni = new ArrayList<>();
+	private List<TekuciRacun> tekuciRacuni = new ArrayList<>();
 	
 	
 	public Kupac() {	
@@ -104,6 +105,27 @@ public class Kupac {
 	public List<Racun> getZatvoreniRacuni() {
 		return zatvoreniRacuni;
 	}
+
+	public List<TekuciRacun> getTekuciRacuni() {
+		return tekuciRacuni;
+	}
+
+	public void setTekuciRacuni(List<TekuciRacun> tekuciRacuni) {
+		this.tekuciRacuni = tekuciRacuni;
+	}
+	
+	// ukupno stanje na svim racunima
+	
+	public double getUkupnoStanje() {
+		double rez = 0;
+		for(TekuciRacun tr:tekuciRacuni) {
+			rez+=tr.getStanje();
+		}
+		return rez;
+	}
+		
+	
+	
 	
 	
 	

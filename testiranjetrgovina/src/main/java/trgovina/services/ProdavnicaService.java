@@ -18,6 +18,8 @@ public interface ProdavnicaService {
 	
 	public RacunDTO izdajRacun(Kupac kupac, String racunId);
 	
+	public String getZiroRacun();
+	
 	
 	
 	 

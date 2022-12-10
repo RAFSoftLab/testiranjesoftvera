@@ -23,11 +23,13 @@ public class Prodavnica implements ProdavnicaService{
 	private Map<TipKupca,Integer> popusti = new HashMap<TipKupca,Integer>();	
 	
 	private String nazivProdavnice;	
+	private String ziroRacun;	
 	
 	private ProizvodRepository proizvodRepo;
 	
 	public Prodavnica() {
 		this.nazivProdavnice = "Big Shop";
+		this.ziroRacun = "123456789";
 	}
 	
 	public Prodavnica(String naziv) {
@@ -126,6 +128,11 @@ public class Prodavnica implements ProdavnicaService{
 	@Override
 	public String noviBrojRacuna(Kupac k) {
 		return BrojRacunaGenerator.getInstance().generisiBroj(k, nazivProdavnice);
+	}
+
+	@Override
+	public String getZiroRacun() {		
+		return ziroRacun;
 	}
 
 	
