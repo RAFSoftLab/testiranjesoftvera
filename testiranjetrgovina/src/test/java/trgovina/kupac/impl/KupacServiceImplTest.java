@@ -65,7 +65,7 @@ class KupacServiceImplTest {
 	// za vezbu - da studenti sami rade
 	
 	@Test
-	void testKupacServiceZatvaranjeRacunaNesipravno() {	
+	void testKupacServiceZatvaranjeRacunaNeispravno() {	
 		
 		KupacServiceImpl kupacService = new KupacServiceImpl();
 		Kupac k = new Kupac("Marko", "Markovic");

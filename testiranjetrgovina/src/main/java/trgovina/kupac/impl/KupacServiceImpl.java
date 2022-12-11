@@ -42,7 +42,7 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	}
 	
 	
-	// zatvra racun i vraca njegov id
+	// zatvara racun i vraca njegov id
 
 	@Override
 	public String zatvoriRacun(Kupac k, ProdavnicaService p) {
