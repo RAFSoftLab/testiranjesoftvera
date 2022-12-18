@@ -1,4 +1,4 @@
-package trgovina.prodavnicaimpl;
+package trgovina.serviceimpl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
 import trgovina.model.Racun;
 import trgovina.model.TipKupca;
-import trgovina.repositories.ProizvodRepository;
+import trgovina.services.InventarService;
 import trgovina.services.ProdavnicaService;
 import trgovina.utils.BrojRacunaGenerator;
 
@@ -25,7 +25,7 @@ public class Prodavnica implements ProdavnicaService{
 	private String nazivProdavnice;	
 	private String ziroRacun;	
 	
-	private ProizvodRepository proizvodRepo;
+	private InventarService inventarService;
 	
 	public Prodavnica() {
 		this.nazivProdavnice = "Big Shop";
@@ -34,20 +34,19 @@ public class Prodavnica implements ProdavnicaService{
 	
 	public Prodavnica(String naziv) {
 		this.nazivProdavnice = naziv;
+	}	
+
+	public void setInventarService(InventarService inventarService) {
+		this.inventarService = inventarService;
 	}
-	
-	
-	public void setProizvodRepo(ProizvodRepository proizvodRepo) {
-		this.proizvodRepo = proizvodRepo;		
-	}
-	
+
 	/**
 	 * Vraca se ukupan broj svih ucitanih proizvoda
 	 */
 	public void ucitajProizvode() {
-		List<String> proizvodi = proizvodRepo.vratiSveRazliciteProizvode();		
+		List<String> proizvodi = inventarService.vratiSveNaziveProizvoda();		
 		for(String str:proizvodi) {
-			int stanje = proizvodRepo.vratiStanjeZaProizvod(str);
+			int stanje = inventarService.vratiStanjeZaProizvod(str);
 			inventar.put(str,stanje);			
 		}				
 	}

@@ -1,4 +1,4 @@
-package trgovina.prodavnicaimpl;
+package trgovina.serviceimpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -8,14 +8,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import trgovina.repositories.ProizvodRepository;
+import trgovina.serviceimpl.Prodavnica;
 
 
 
 class ProdavnicaTest {
 
-	// primer sa predavanja
 	
+	/*
 	@Test
 	void testUcitavanjeProizvoda() {
 		// primer stub		
@@ -31,7 +31,7 @@ class ProdavnicaTest {
 		
 		assertEquals(50, ukupanBroj);		
 	}
-	
+	*/
 	
 
 }

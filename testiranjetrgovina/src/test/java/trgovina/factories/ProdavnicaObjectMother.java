@@ -2,7 +2,7 @@ package trgovina.factories;
 
 import java.util.List;
 import trgovina.model.TipKupca;
-import trgovina.prodavnicaimpl.Prodavnica;
+import trgovina.serviceimpl.Prodavnica;
 import trgovina.services.ProdavnicaService;
 
 public class ProdavnicaObjectMother {

@@ -3,7 +3,7 @@ package trgovina.factories;
 import java.util.List;
 
 import trgovina.model.TipKupca;
-import trgovina.prodavnicaimpl.Prodavnica;
+import trgovina.serviceimpl.Prodavnica;
 
 public class ProdavnicaTestBuilder {
 	

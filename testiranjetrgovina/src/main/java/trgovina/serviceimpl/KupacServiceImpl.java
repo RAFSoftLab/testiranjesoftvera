@@ -1,4 +1,4 @@
-package trgovina.kupac.impl;
+package trgovina.serviceimpl;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -24,13 +24,16 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	
 	private Map<Kupac, Racun> aktivniRacuni;
 	
-	public KupacServiceImpl() {
+	private ProdavnicaService prodavnica;
+	
+	public KupacServiceImpl(ProdavnicaService prodavnicaService) {
+		this.prodavnica = prodavnicaService;
 		aktivniRacuni = new HashMap<>();
 		
 	}
 	
 	@Override
-	public String otvoriRacun(Kupac k, ProdavnicaService prodavnica) {
+	public String otvoriRacun(Kupac k) {
 		String racunId = prodavnica.noviBrojRacuna(k);
 		Racun racun = new Racun(racunId, LocalDate.now());
 		aktivniRacuni.put(k, racun);
@@ -45,7 +48,7 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	// zatvara racun i vraca njegov id
 
 	@Override
-	public String zatvoriRacun(Kupac k, ProdavnicaService p) {
+	public String zatvoriRacun(Kupac k) {
 		Racun racunKupca =  aktivniRacuni.get(k);
 		if(racunKupca==null) 
 			throw new NedozvoljenaOperacijaNadRacunomException("Racun nije otvoren, ne moze se zatvoriti");
@@ -55,9 +58,9 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	}
 	
 	@Override
-	public boolean kupi(Kupac k, ProdavnicaService prodavnica, String proizvod, int kolicina) {
+	public boolean kupi(Kupac k, String proizvod, int kolicina) {
 		if(aktivniRacuni.get(k)==null) {  // nije otvoren racun, prvo cemo ga otvoriti
-			otvoriRacun(k, prodavnica);
+			otvoriRacun(k);
 		}
 		if(prodavnica.kupi(proizvod, kolicina)) {
 			Racun racun = aktivniRacuni.get(k);

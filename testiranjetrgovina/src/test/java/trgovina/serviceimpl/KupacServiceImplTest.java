@@ -1,4 +1,4 @@
-package trgovina.kupac.impl;
+package trgovina.serviceimpl;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,18 +10,20 @@ import org.junit.jupiter.api.Test;
 
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
-import trgovina.prodavnicaimpl.Prodavnica;
+import trgovina.serviceimpl.KupacServiceImpl;
+import trgovina.serviceimpl.Prodavnica;
 import trgovina.services.ProdavnicaService;
 
 class KupacServiceImplTest {
 
 	@Test
 	void testKupacServiceOtvaranjeRacuna() {
-		KupacServiceImpl kupacService = new KupacServiceImpl();
+		ProdavnicaService prodavnica = new Prodavnica();	
+		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		Kupac k = new Kupac("Marko", "Markovic");
-		ProdavnicaService prodavnica = new Prodavnica();		
+			
 		
-		String brojRacuna = kupacService.otvoriRacun(k,prodavnica);
+		String brojRacuna = kupacService.otvoriRacun(k);
 		
 		assertTrue(brojRacuna.startsWith("MM"));
 		assertTrue(kupacService.getAktivniRacuni().containsKey(k));
@@ -33,13 +35,14 @@ class KupacServiceImplTest {
 	@Test
 	void testKupacServiceOtvaranjeRacunaMockGenerator() {
 		// generator broja racuna ima nedeterministicko ponasanje, mozemo taj deo da laziramo
-		
-		KupacServiceImpl kupacService = new KupacServiceImpl();
 		Kupac k = new Kupac("Marko", "Markovic");
 		ProdavnicaService prodavnica = mock(ProdavnicaService.class);
 		when(prodavnica.noviBrojRacuna(k)).thenReturn("MM12345");
+		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		
-		String brojRacuna = kupacService.otvoriRacun(k,prodavnica);		
+		
+		
+		String brojRacuna = kupacService.otvoriRacun(k);		
 		
 		assertTrue(kupacService.getAktivniRacuni().containsKey(k));
 		assertTrue(kupacService.getAktivniRacuni().get(k).getRacunId().equals(brojRacuna));
@@ -49,13 +52,12 @@ class KupacServiceImplTest {
 	
 	@Test
 	void testKupacServiceZatvaranjeRacuna() {	
+		ProdavnicaService prodavnica = new Prodavnica();	
+		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
+		Kupac k = new Kupac("Marko", "Markovic");			
+		String brojRacuna = kupacService.otvoriRacun(k);
 		
-		KupacServiceImpl kupacService = new KupacServiceImpl();
-		Kupac k = new Kupac("Marko", "Markovic");
-		ProdavnicaService prodavnica = new Prodavnica();		
-		String brojRacuna = kupacService.otvoriRacun(k,prodavnica);
-		
-		kupacService.zatvoriRacun(k,prodavnica);
+		kupacService.zatvoriRacun(k);
 		
 		assertEquals(0,kupacService.getAktivniRacuni().size());
 		assertEquals(1,k.getZatvoreniRacuni().size());
@@ -66,13 +68,12 @@ class KupacServiceImplTest {
 	
 	@Test
 	void testKupacServiceZatvaranjeRacunaNeispravno() {	
+		ProdavnicaService prodavnica = new Prodavnica();	
+		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
+		Kupac k = new Kupac("Marko", "Markovic");				
 		
-		KupacServiceImpl kupacService = new KupacServiceImpl();
-		Kupac k = new Kupac("Marko", "Markovic");
-		ProdavnicaService prodavnica = new Prodavnica();				
 		
-		
-		assertThrows(NedozvoljenaOperacijaNadRacunomException.class,() -> kupacService.zatvoriRacun(k,prodavnica));
+		assertThrows(NedozvoljenaOperacijaNadRacunomException.class,() -> kupacService.zatvoriRacun(k));
 		
 					
 	}

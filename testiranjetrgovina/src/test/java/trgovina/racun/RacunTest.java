@@ -1,4 +1,4 @@
-package trgovina.prodavnicaimpl;
+package trgovina.racun;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -18,8 +18,8 @@ import org.mockito.ArgumentCaptor;
 import trgovina.dtos.RacunDTO;
 import trgovina.factories.KupacObjectMother;
 import trgovina.factories.ProdavnicaObjectMother;
-import trgovina.kupac.impl.KupacServiceImpl;
 import trgovina.model.Kupac;
+import trgovina.serviceimpl.KupacServiceImpl;
 import trgovina.services.EmailService;
 import trgovina.services.ProdavnicaService;
 
@@ -32,13 +32,13 @@ class RacunTest {
 	
 	@BeforeEach
 	public void pripremiZaRacun() {
-		kupac = KupacObjectMother.createKupacBezTipa();   
-		kupacService = new KupacServiceImpl();
+		kupac = KupacObjectMother.createKupacBezTipa();
 		prodavnica = ProdavnicaObjectMother.createProdavnicaSaNazivomSaNProizvodaICenomB
 				(List.of("sampon","sapun","hleb","mleko","bombone"), List.of(20,30,40,50,60), List.of(120.0, 80.0,40.0,50.0,100.0));
-		kupacService.kupi(kupac,prodavnica,"hleb", 3);
-		kupacService.kupi(kupac,prodavnica,"mleko", 2);
-		kupacService.kupi(kupac,prodavnica, "bombone", 10);	
+		kupacService = new KupacServiceImpl(prodavnica);		
+		kupacService.kupi(kupac,"hleb", 3);
+		kupacService.kupi(kupac,"mleko", 2);
+		kupacService.kupi(kupac,"bombone", 10);	
 		
 	}
 	
@@ -48,7 +48,7 @@ class RacunTest {
 	@Test
 	void testRacunBezTipaKupca() {
 	
-		String racunId = kupacService.zatvoriRacun(kupac, prodavnica);
+		String racunId = kupacService.zatvoriRacun(kupac);
 		
 		
 		RacunDTO racun = prodavnica.izdajRacun(kupac, racunId);
@@ -66,7 +66,7 @@ class RacunTest {
 		kupacService.setEmailService(emailService);
 		when(emailService.sendEmail(any(), any(), any())).thenReturn(true);
 		
-		String racunId = kupacService.zatvoriRacun(kupac, prodavnica);
+		String racunId = kupacService.zatvoriRacun(kupac);
 		
 		boolean ok = kupacService.posaljiRacun(kupac, prodavnica, racunId);
 		
@@ -98,7 +98,7 @@ class RacunTest {
 		EmailService emailService = mock(EmailService.class);
 		kupacService.setEmailService(emailService);
 		when(emailService.sendEmail(any(), any(), any())).thenReturn(true);
-		String racunId = kupacService.zatvoriRacun(kupac, prodavnica);
+		String racunId = kupacService.zatvoriRacun(kupac);
 		ArgumentCaptor<String> acString = ArgumentCaptor.forClass(String.class);  
 		
 		
