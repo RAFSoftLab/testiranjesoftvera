@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "fe39bbaf-dce7-4a25-94ca-b07e5263d0ec",
+		"name": "trgovina",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "kupovina",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/kupi?nazivProizvoda=sampon&kolicina=50&idKupca=12",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"kupi"
+					],
+					"query": [
+						{
+							"key": "nazivProizvoda",
+							"value": "sampon"
+						},
+						{
+							"key": "kolicina",
+							"value": "50"
+						},
+						{
+							"key": "idKupca",
+							"value": "12"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "svi kupci",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "registracija kupca",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"ime\": \"Mirko\",\n        \"prezime\": \"Mirkvic\",\n        \"email\": \"mmirkovic@gmail.com\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8082/kupac/registracija",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"registracija"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "kupac za id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null
+			},
+			"response": []
+		}
+	]
+}
