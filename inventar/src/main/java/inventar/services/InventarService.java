@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import inventar.dtos.ProizvodDTO;
 import inventar.model.Proizvod;
-import inventar.repostotries.ProizvodRepository;
+import inventar.repositories.ProizvodRepository;
 
 @Service
 public class InventarService {
@@ -23,10 +23,19 @@ public class InventarService {
 	public List<ProizvodDTO> getInventar(){
 		Iterable<Proizvod> sviProizvodi = proizvodRepo.findAll();
 		List<ProizvodDTO> retVal = new ArrayList<>();
-		sviProizvodi.forEach(p -> retVal.add(new ProizvodDTO(p.getNaziv(), p.getKategorija(), p.getCena(), p.getStanje())));
-		return retVal;
-		
-		
+		sviProizvodi.forEach(p 
+				-> retVal.add(new ProizvodDTO(p.getNaziv(), p.getKategorija(), p.getCena(), p.getStanje())));
+		return retVal;		
+	}
+	
+	/*
+	 * ocekujemo samo jedan proizvod za prosledjeni naziv
+	 */
+	
+	public ProizvodDTO getProizvodZaNaziv(String naziv){
+		List<Proizvod> proizvodi = proizvodRepo.vratiProizvodZaNaziv(naziv);
+		Proizvod p = proizvodi.get(0);		
+		return new ProizvodDTO(p.getNaziv(), p.getKategorija(), p.getCena(), p.getStanje());		
 	}
 	
 

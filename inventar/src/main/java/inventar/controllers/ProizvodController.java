@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import inventar.dtos.ProizvodDTO;
@@ -28,6 +29,12 @@ public class ProizvodController {
 	@GetMapping(path="/all")
 	public List<ProizvodDTO> getInventar(){
 		return inventarService.getInventar();
+	}
+	
+	@Operation(summary = "Proizvod po nazivu", description = "Vraca sve podatke o proizvodu za prosledjeni naziv")
+	@GetMapping(path="/proizvod")
+	public ProizvodDTO getProizvodPoNazivu(@RequestParam String naziv){
+		return inventarService.getProizvodZaNaziv(naziv);
 	}
 
 }
