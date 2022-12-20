@@ -6,8 +6,7 @@ public class KupacDTO {
 	private String prezime;
 	private String email;	
 	
-	public KupacDTO() {
-		super();
+	public KupacDTO() {		
 	}
 
 

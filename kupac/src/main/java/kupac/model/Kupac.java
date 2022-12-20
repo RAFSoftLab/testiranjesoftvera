@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Kupac {	
@@ -18,6 +19,7 @@ public class Kupac {
 	private String ime;
 	private String prezime;
 	private String email;	
+	@OneToMany
 	private List<TekuciRacun> tekuciRacuni = new ArrayList<>();
 	
 	
