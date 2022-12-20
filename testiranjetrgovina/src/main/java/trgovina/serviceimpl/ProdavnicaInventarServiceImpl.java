@@ -46,19 +46,22 @@ public class ProdavnicaInventarServiceImpl implements InventarService{
 	}
 
 	@Override
-	public int vratiStanjeZaProizvod(String proizvod) {
-		List<ProizvodDTO> retVal = inventarserviceConsumer.vratiSveProizvode();		
-		return retVal.stream()
-				.filter(p->p.getNaziv().equals(proizvod))
-				.map(p -> p.getStanje()).collect(Collectors.toList()).get(0);
+	public int vratiStanjeZaProizvod(String naziv) {
+		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);		
+		return p.getStanje();
 	}
 
 	@Override
-	public double vratiCenuZaProizvod(String proizvod) {
-		List<ProizvodDTO> retVal = inventarserviceConsumer.vratiSveProizvode();		
-		return retVal.stream()
-				.filter(p->p.getNaziv().equals(proizvod))
-				.map(p -> p.getCena()).collect(Collectors.toList()).get(0);
+	public double vratiCenuZaProizvod(String naziv) {
+		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);		
+		return p.getCena();
+		
+	}
+
+
+	@Override
+	public void umanjiStanjeProizvoda(String proizvod, int umanjenje) {
+		inventarserviceConsumer.azurirajStanjeInventaraAsinh(proizvod, umanjenje);
 		
 	}
 	

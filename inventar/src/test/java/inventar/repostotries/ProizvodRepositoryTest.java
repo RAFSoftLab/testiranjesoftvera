@@ -24,5 +24,8 @@ class ProizvodRepositoryTest {
 		assertEquals(1, proizvodi.size());
 		assertEquals("sampon", proizvodi.get(0).getNaziv());
 	}
+	
+	
+	
 
 }

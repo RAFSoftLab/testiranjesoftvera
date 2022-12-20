@@ -4,22 +4,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import trgovina.dtos.RacunDTO;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
 import trgovina.model.Racun;
 import trgovina.model.TipKupca;
 import trgovina.services.InventarService;
-import trgovina.services.ProdavnicaService;
 import trgovina.utils.BrojRacunaGenerator;
 
-
-public class Prodavnica implements ProdavnicaService{
+@Service
+public class Prodavnica{
 
 	private static final double pdv = 0.2;
 	
-	private Map<String,Integer> inventar = new HashMap<String, Integer>();
-	private Map<String,Double> cene = new HashMap<String, Double>();
+	//private Map<String,Integer> inventar = new HashMap<String, Integer>();
+	//private Map<String,Double> cene = new HashMap<String, Double>();
 	private Map<TipKupca,Integer> popusti = new HashMap<TipKupca,Integer>();	
 	
 	private String nazivProdavnice;	
@@ -34,44 +36,20 @@ public class Prodavnica implements ProdavnicaService{
 	
 	public Prodavnica(String naziv) {
 		this.nazivProdavnice = naziv;
-	}	
-
+	}
+	
+	@Autowired
 	public void setInventarService(InventarService inventarService) {
 		this.inventarService = inventarService;
-	}
-
-	/**
-	 * Vraca se ukupan broj svih ucitanih proizvoda
-	 */
-	public void ucitajProizvode() {
-		List<String> proizvodi = inventarService.vratiSveNaziveProizvoda();		
-		for(String str:proizvodi) {
-			int stanje = inventarService.vratiStanjeZaProizvod(str);
-			inventar.put(str,stanje);			
-		}				
-	}
+	}	
 	
-	public int ukupnoProizvoda(){
-		int retVal = 0;
-		for(String p:inventar.keySet()) {
-			retVal+=inventar.get(p);
-		}
-		return retVal;
-	}
-	
-	
-	public void dodajProizvod(String nazivProizvoda, int kolicina) {
-		if(inventar.containsKey(nazivProizvoda))
-			inventar.put(nazivProizvoda, inventar.get(nazivProizvoda)+kolicina);
-		else
-			inventar.put(nazivProizvoda, kolicina);
-	}
-	
+		
 	public boolean kupi(String nazivProizvoda, int kolicina) {
-		if(!inventar.containsKey(nazivProizvoda)) {
+		List<String> sviNazivi = inventarService.vratiSveNaziveProizvoda();
+		if(!sviNazivi.contains(nazivProizvoda)) {
 			return false;
-		}else if(inventar.get(nazivProizvoda)>=kolicina) {
-			inventar.put(nazivProizvoda, inventar.get(nazivProizvoda)-kolicina);
+		}else if(inventarService.vratiStanjeZaProizvod(nazivProizvoda)>=kolicina) {
+			inventarService.umanjiStanjeProizvoda(nazivProizvoda, kolicina);
 			return true;			
 		}else {
 			return false;
@@ -80,21 +58,16 @@ public class Prodavnica implements ProdavnicaService{
 	
 		
 	public int getKolicina(String naziv) {
-		if(inventar.containsKey(naziv))
-			return inventar.get(naziv);
-		return 0;
+		return inventarService.vratiStanjeZaProizvod(naziv);
 	}
 	
-	public void postaviCenu(String proizvod, double cena) {
-		cene.put(proizvod, cena);		
-	}
 	
 	
 	public void dodajPopust(TipKupca tipKupca, int popust) {
 		popusti.put(tipKupca, popust);
 	}	
 	
-	@Override
+
 	public RacunDTO izdajRacun(Kupac kupac, String racunId) {
 		RacunDTO racun = new RacunDTO();
 		racun.setImeIPrezimeKupca(kupac.getIme() + " "+ kupac.getPrezime());
@@ -106,11 +79,8 @@ public class Prodavnica implements ProdavnicaService{
 		Map<String, Integer> artikli = r.getArtikli();		
 		double ukupnaCena = 0;		
 		for(String proizvod:artikli.keySet()) {
-			if(cene.containsKey(proizvod)) {
-				ukupnaCena += cene.get(proizvod)*artikli.get(proizvod);
-			}else {
-				throw new IllegalArgumentException("Proizvod "+proizvod+" nema cenu");
-			}
+			double cena = inventarService.vratiCenuZaProizvod(proizvod);
+			ukupnaCena += cena*artikli.get(proizvod);			
 		}
 		racun.setUkupnaCenaBezPdv(ukupnaCena);
 		double cenaSaPdv = ukupnaCena*(1+pdv);
@@ -124,15 +94,16 @@ public class Prodavnica implements ProdavnicaService{
 		return racun;
 	}
 
-	@Override
+	
 	public String noviBrojRacuna(Kupac k) {
 		return BrojRacunaGenerator.getInstance().generisiBroj(k, nazivProdavnice);
 	}
 
-	@Override
+	
 	public String getZiroRacun() {		
 		return ziroRacun;
 	}
+
 
 	
 	

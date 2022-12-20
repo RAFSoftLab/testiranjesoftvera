@@ -25,5 +25,13 @@ class InventarServiceConsumerTest {
 		
 		assertEquals(4, inventar.size());
 	}
+	
+	@Test
+	void testProizvodPoNazivu() {
+		ProizvodDTO proizvod = inventarServiceConsumer.vratiProizvodePoNazivu("sampon");
+		
+		assertEquals("sampon",proizvod.getNaziv());
+	}
+
 
 }

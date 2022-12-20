@@ -12,5 +12,7 @@ public interface InventarService {
 	public int vratiStanjeZaProizvod(String proizvod);
 	
 	public double vratiCenuZaProizvod(String proizvod);
+	
+	public void umanjiStanjeProizvoda(String proizvod, int umanjenje);
 
 }

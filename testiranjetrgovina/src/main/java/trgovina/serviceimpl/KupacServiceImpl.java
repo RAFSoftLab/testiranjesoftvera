@@ -14,7 +14,7 @@ import trgovina.services.EmailService;
 import trgovina.services.KupacService;
 import trgovina.services.PlacanjeService;
 import trgovina.services.RacunNotificationsService;
-import trgovina.services.ProdavnicaService;
+
 
 public class KupacServiceImpl implements KupacService, RacunNotificationsService{
 	
@@ -24,10 +24,10 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	
 	private Map<Kupac, Racun> aktivniRacuni;
 	
-	private ProdavnicaService prodavnica;
+	private Prodavnica prodavnica;
 	
-	public KupacServiceImpl(ProdavnicaService prodavnicaService) {
-		this.prodavnica = prodavnicaService;
+	public KupacServiceImpl(Prodavnica prodavnica) {
+		this.prodavnica = prodavnica;
 		aktivniRacuni = new HashMap<>();
 		
 	}
@@ -71,9 +71,9 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 		
 	}
 	
-	public boolean posaljiRacun(Kupac k, ProdavnicaService p, String racunId) {
+	public boolean posaljiRacun(Kupac k, String racunId) {
 		try {
-			RacunDTO racun = p.izdajRacun(k, racunId);
+			RacunDTO racun = prodavnica.izdajRacun(k, racunId);
 			return prepareAndSendMessage(k,racun);
 		}catch(NedozvoljenaOperacijaNadRacunomException e) {
 			return false;	
@@ -113,8 +113,8 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 	 * 
 	 */
 	
-	public void uplatiRacun(Kupac k, String racunId, ProdavnicaService p) {
-		RacunDTO racun = p.izdajRacun(k, racunId);
+	public void uplatiRacun(Kupac k, String racunId) {
+		RacunDTO racun = prodavnica.izdajRacun(k, racunId);
 		double iznosZaPlacanje = racun.getUkupnaCenaSaPopustom();
 		if(k.getUkupnoStanje()<iznosZaPlacanje)
 			throw new NedozvoljenaOperacijaNadRacunomException("Kupac nema dovoljno sredstava na racunu");
@@ -124,11 +124,11 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 		while(preostaloZaPlacanje>0 && i<trList.size()) {
 			TekuciRacun tr = trList.get(i);
 			if(preostaloZaPlacanje>=tr.getStanje()) {
-				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(), p.getZiroRacun(), racunId, tr.getStanje());
+				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(), prodavnica.getZiroRacun(), racunId, tr.getStanje());
 				preostaloZaPlacanje-=tr.getStanje();
 				tr.isplati(tr.getStanje());				
 			}else {
-				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(),  p.getZiroRacun(), racunId, preostaloZaPlacanje);
+				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(),  prodavnica.getZiroRacun(), racunId, preostaloZaPlacanje);
 				preostaloZaPlacanje=0;
 				tr.isplati(tr.getStanje());		
 			}

@@ -1,24 +1,25 @@
 package trgovina.serviceimpl;
 
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
-import trgovina.serviceimpl.KupacServiceImpl;
-import trgovina.serviceimpl.Prodavnica;
-import trgovina.services.ProdavnicaService;
+
+
+
 
 class KupacServiceImplTest {
 
 	@Test
 	void testKupacServiceOtvaranjeRacuna() {
-		ProdavnicaService prodavnica = new Prodavnica();	
+		Prodavnica prodavnica = new Prodavnica();	
 		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		Kupac k = new Kupac("Marko", "Markovic");
 			
@@ -36,7 +37,7 @@ class KupacServiceImplTest {
 	void testKupacServiceOtvaranjeRacunaMockGenerator() {
 		// generator broja racuna ima nedeterministicko ponasanje, mozemo taj deo da laziramo
 		Kupac k = new Kupac("Marko", "Markovic");
-		ProdavnicaService prodavnica = mock(ProdavnicaService.class);
+		Prodavnica prodavnica = mock(Prodavnica.class);
 		when(prodavnica.noviBrojRacuna(k)).thenReturn("MM12345");
 		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		
@@ -45,14 +46,12 @@ class KupacServiceImplTest {
 		String brojRacuna = kupacService.otvoriRacun(k);		
 		
 		assertTrue(kupacService.getAktivniRacuni().containsKey(k));
-		assertTrue(kupacService.getAktivniRacuni().get(k).getRacunId().equals(brojRacuna));
-		verify(prodavnica).noviBrojRacuna(k);
-		
+		assertTrue(kupacService.getAktivniRacuni().get(k).getRacunId().equals(brojRacuna));	
 	}
 	
 	@Test
 	void testKupacServiceZatvaranjeRacuna() {	
-		ProdavnicaService prodavnica = new Prodavnica();	
+		Prodavnica prodavnica = new Prodavnica();	
 		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		Kupac k = new Kupac("Marko", "Markovic");			
 		String brojRacuna = kupacService.otvoriRacun(k);
@@ -68,7 +67,7 @@ class KupacServiceImplTest {
 	
 	@Test
 	void testKupacServiceZatvaranjeRacunaNeispravno() {	
-		ProdavnicaService prodavnica = new Prodavnica();	
+		Prodavnica prodavnica = new Prodavnica();	
 		KupacServiceImpl kupacService = new KupacServiceImpl(prodavnica);
 		Kupac k = new Kupac("Marko", "Markovic");				
 		

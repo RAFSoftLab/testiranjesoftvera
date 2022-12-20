@@ -9,32 +9,48 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import trgovina.dtos.ProizvodDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.factories.KupacObjectMother;
-import trgovina.factories.ProdavnicaObjectMother;
 import trgovina.model.Kupac;
+import trgovina.serviceconsumers.InventarServiceConsumer;
 import trgovina.serviceimpl.KupacServiceImpl;
+import trgovina.serviceimpl.Prodavnica;
+import trgovina.serviceimpl.ProdavnicaInventarServiceImpl;
 import trgovina.services.EmailService;
-import trgovina.services.ProdavnicaService;
+
 
 class RacunTest {
 	
 	private Kupac kupac;
 	private KupacServiceImpl kupacService;
-	private ProdavnicaService prodavnica;
+	private Prodavnica prodavnica;
+	
+	private InventarServiceConsumer inventarServiceConsumer;
+	private ProdavnicaInventarServiceImpl prodavnicaInventarService;
 	
 	
 	@BeforeEach
-	public void pripremiZaRacun() {
+	public void pripremiZaRacun() {		
+		inventarServiceConsumer = mock(InventarServiceConsumer.class);
+		List<ProizvodDTO> proizvodi = new ArrayList<>();
+		proizvodi.add(new ProizvodDTO("sampon","kozmetika",100.0,90));
+		proizvodi.add(new ProizvodDTO("sapun","kozetika",50.0,50));
+		proizvodi.add(new ProizvodDTO("hleb","prehrambeni",40.0,80));
+		proizvodi.add(new ProizvodDTO("mleko","prehrambeni",30.0,100));
+		when(inventarServiceConsumer.vratiSveProizvode()).thenReturn(proizvodi);
+		prodavnicaInventarService = new ProdavnicaInventarServiceImpl(inventarServiceConsumer);
+		
+		
 		kupac = KupacObjectMother.createKupacBezTipa();
-		prodavnica = ProdavnicaObjectMother.createProdavnicaSaNazivomSaNProizvodaICenomB
-				(List.of("sampon","sapun","hleb","mleko","bombone"), List.of(20,30,40,50,60), List.of(120.0, 80.0,40.0,50.0,100.0));
+		prodavnica.setInventarService(prodavnicaInventarService);
 		kupacService = new KupacServiceImpl(prodavnica);		
 		kupacService.kupi(kupac,"hleb", 3);
 		kupacService.kupi(kupac,"mleko", 2);
@@ -68,7 +84,7 @@ class RacunTest {
 		
 		String racunId = kupacService.zatvoriRacun(kupac);
 		
-		boolean ok = kupacService.posaljiRacun(kupac, prodavnica, racunId);
+		boolean ok = kupacService.posaljiRacun(kupac, racunId);
 		
 		assertTrue(ok);
 		verify(emailService).sendEmail(eq(kupac.getEmail()), any(), any());  // proveravamo samo prvi argument, druga dva zanemarujemo		
@@ -84,7 +100,7 @@ class RacunTest {
 		when(emailService.sendEmail(any(), any(), any())).thenReturn(true);
 	
 	
-		boolean ok = kupacService.posaljiRacun(kupac, prodavnica, kupacService.getAktivniRacuni().get(kupac).getRacunId());
+		boolean ok = kupacService.posaljiRacun(kupac, kupacService.getAktivniRacuni().get(kupac).getRacunId());
 		
 		assertFalse(ok);		
 		verify(emailService, never()).sendEmail(eq(kupac.getEmail()), any(), any());  // proveravamo samo prvi argument, druga dva zanemarujemo		
@@ -102,7 +118,7 @@ class RacunTest {
 		ArgumentCaptor<String> acString = ArgumentCaptor.forClass(String.class);  
 		
 		
-		kupacService.posaljiRacun(kupac, prodavnica, racunId);
+		kupacService.posaljiRacun(kupac, racunId);
 		
 		verify(emailService).sendEmail(eq(kupac.getEmail()), acString.capture(), any());  // hvatamo vrednost argumenta 
 		assertEquals("Racun "+racunId,acString.getValue());
