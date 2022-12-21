@@ -47,7 +47,9 @@ public class ProdavnicaInventarServiceImpl implements InventarService{
 
 	@Override
 	public int vratiStanjeZaProizvod(String naziv) {
-		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);		
+		System.out.println("Vrati proizvod po nazivu-sinhrono");
+		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);
+		System.out.println("Vracen proizvod-sinhrono");
 		return p.getStanje();
 	}
 
@@ -61,7 +63,9 @@ public class ProdavnicaInventarServiceImpl implements InventarService{
 
 	@Override
 	public void umanjiStanjeProizvoda(String proizvod, int umanjenje) {
+		System.out.println("Azuriranje stanja-asinhrono");
 		inventarserviceConsumer.azurirajStanjeInventaraAsinh(proizvod, umanjenje);
+		System.out.println("Azuriranje stanja zavrseno-asinhrono");
 		
 	}
 	

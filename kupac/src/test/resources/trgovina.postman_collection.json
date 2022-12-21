@@ -93,6 +93,15 @@
 				"url": null
 			},
 			"response": []
+		},
+		{
+			"name": "lojalnost-sve",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": null
+			},
+			"response": []
 		}
 	]
 }

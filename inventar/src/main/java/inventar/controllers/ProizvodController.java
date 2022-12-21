@@ -44,6 +44,7 @@ public class ProizvodController {
 			e.printStackTrace();
 		}
 		*/
+		
 				
 		return inventarService.getProizvodZaNaziv(naziv);
 	}
@@ -51,7 +52,16 @@ public class ProizvodController {
 	@Operation(summary = "Smanjuje kolicinu proizvoda na stanju", 
 			   description = "Smanjuje broj proizvada u inventaru za vrednost prosledjenog parametra umenjenje, ako ne moze da se smanji jer nema dovoljno na stanju, vraca false, inace true")
 	@PutMapping("/umanji")
-	public boolean smanjiKolicinu(@RequestParam String naziv, @RequestParam int umanjenje){				
+	public boolean smanjiKolicinu(@RequestParam String naziv, @RequestParam int umanjenje){	
+		// usporimo izvrsavanje za ilustraciju blokirajuceg poziva    	
+		/*
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 		return inventarService.smanjiKolicinuNaStanju(naziv, umanjenje);
 	}
 	
