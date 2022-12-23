@@ -1,4 +1,4 @@
-package kupac.dtos;
+package trgovina.dtos;
 
 public class KupacDTO {
 	

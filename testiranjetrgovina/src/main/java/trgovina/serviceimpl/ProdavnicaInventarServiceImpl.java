@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import trgovina.dtos.ProizvodDTO;
+import trgovina.izuzeci.NepostojiProizvodExeception;
 import trgovina.serviceconsumers.InventarServiceConsumer;
-import trgovina.services.InventarService;
+import trgovina.services.ProdavnicaInventarService;
 
 /**
  * statless implementacija
@@ -17,7 +18,7 @@ import trgovina.services.InventarService;
  */
 
 @Service
-public class ProdavnicaInventarServiceImpl implements InventarService{
+public class ProdavnicaInventarServiceImpl implements ProdavnicaInventarService{
 	
 	private InventarServiceConsumer inventarserviceConsumer;
 	
@@ -46,27 +47,24 @@ public class ProdavnicaInventarServiceImpl implements InventarService{
 	}
 
 	@Override
-	public int vratiStanjeZaProizvod(String naziv) {
-		System.out.println("Vrati proizvod po nazivu-sinhrono");
+	public int vratiStanjeZaProizvod(String naziv) {		
 		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);
-		System.out.println("Vracen proizvod-sinhrono");
+		if(p==null) return 0;
 		return p.getStanje();
 	}
 
 	@Override
 	public double vratiCenuZaProizvod(String naziv) {
 		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);		
+		if(p==null) throw new NepostojiProizvodExeception("Proizvod pod nazivom "+naziv+" ne postoji");
 		return p.getCena();
 		
 	}
 
 
 	@Override
-	public void umanjiStanjeProizvoda(String proizvod, int umanjenje) {
-		System.out.println("Azuriranje stanja-asinhrono");
-		inventarserviceConsumer.azurirajStanjeInventaraAsinh(proizvod, umanjenje);
-		System.out.println("Azuriranje stanja zavrseno-asinhrono");
-		
+	public void umanjiStanjeProizvoda(String proizvod, int umanjenje) {		
+		inventarserviceConsumer.azurirajStanjeInventaraAsinh(proizvod, umanjenje);		
 	}
 	
 	

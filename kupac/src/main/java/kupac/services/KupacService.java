@@ -26,7 +26,7 @@ public class KupacService {
 	
 	public Long registracija(KupacDTO kupac) {
 		Kupac k = kupacRepo.save(new Kupac(kupac.getIme(), kupac.getPrezime(), kupac.getEmail()));
-		sender.posaljiEmailKupca(kupac.getEmail());
+		sender.registrovanKupacEmitEvent(kupac.getEmail());
 		return k.getId();
 	}
 
@@ -34,7 +34,7 @@ public class KupacService {
 		Iterable<Kupac> svi =  kupacRepo.findAll();
 		List<KupacDTO> retVal = new ArrayList<>();
 		for(Kupac k:svi) {
-			retVal.add(new KupacDTO(k.getIme(),k.getPrezime(),k.getEmail()));
+			retVal.add(new KupacDTO(k.getId(),k.getIme(),k.getPrezime(),k.getEmail()));
 		}
 		return retVal;		
 	}
@@ -44,7 +44,7 @@ public class KupacService {
 		if(kOpt.isEmpty())
 			return null;
 		else
-			return kOpt.map(k -> new KupacDTO(k.getIme(),k.getPrezime(),k.getEmail())).get();
+			return kOpt.map(k -> new KupacDTO(k.getId(),k.getIme(),k.getPrezime(),k.getEmail())).get();
 	}
 		
 }

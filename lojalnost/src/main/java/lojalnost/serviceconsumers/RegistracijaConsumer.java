@@ -22,7 +22,7 @@ public class RegistracijaConsumer {
 	}
 
 
-	@RabbitListener(queues = "registracija")
+	@RabbitListener(queues = "${queue.name}")
     public void receive(String email) {
         System.out.println("Registrovan kupac " + email);
         BrojKupovina bk = new BrojKupovina(email);

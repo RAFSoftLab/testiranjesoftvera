@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import trgovina.serviceimpl.Prodavnica;
+import trgovina.services.KupovinaService;
 
 
 
@@ -15,12 +16,22 @@ import trgovina.serviceimpl.Prodavnica;
 public class ProdavnicaController {
 	
 	@Autowired
-	private Prodavnica prodavnica;
+	private KupovinaService kupovina;
 	
+	
+	@PostMapping(path="/otvoriracun")
+	public boolean otvoriRacin(Long kupacId) {
+		return true; 
+	}
+	
+	@PostMapping(path="/zatvoriracun")
+	public boolean zatvoriRacin(Long kupacId) {
+		return true; 
+	}
 
 	@PostMapping(path="/kupi")
     public boolean kupiJedanProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){  
-		boolean uspesna = prodavnica.kupi(nazivProizvoda, kolicina);		
+		boolean uspesna = kupovina.kupi(idKupca.intValue(),nazivProizvoda, kolicina);		
     	return uspesna;    	
     }
 

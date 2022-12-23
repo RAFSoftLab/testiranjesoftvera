@@ -17,6 +17,11 @@ public class TrgovinaServiceConfig {
        return "http://localhost:8081";
     }
 	
+	@Bean
+    public String kupacServiceBaseUrl() {
+       return "http://localhost:8082";
+    }
+	
 	
 
 }

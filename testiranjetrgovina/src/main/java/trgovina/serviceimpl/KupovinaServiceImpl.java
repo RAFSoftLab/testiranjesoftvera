@@ -1,10 +1,16 @@
 package trgovina.serviceimpl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import trgovina.dtos.KupacDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
@@ -12,65 +18,119 @@ import trgovina.model.Racun;
 import trgovina.model.TekuciRacun;
 import trgovina.services.EmailService;
 import trgovina.services.KupacService;
+import trgovina.services.KupovinaService;
 import trgovina.services.PlacanjeService;
 import trgovina.services.RacunNotificationsService;
 
-
-public class KupacServiceImpl implements KupacService, RacunNotificationsService{
+@Service
+public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsService{
 	
 	/**
 	 * svi trenutno otvoreni racuni, na kojima jos nije zavrsena kupovina
+	 * id racuna je kljuc
+	 * 
 	 */
 	
-	private Map<Kupac, Racun> aktivniRacuni;
+	private Map<String, Racun> aktivniRacuni;
+	private List<Racun> zatvoreniRacuni;
 	
 	private Prodavnica prodavnica;
 	
-	public KupacServiceImpl(Prodavnica prodavnica) {
-		this.prodavnica = prodavnica;
+	@Autowired
+	private KupacService kupacService;
+	
+	public KupovinaServiceImpl(Prodavnica prodavnica) {
+		this.prodavnica = prodavnica;		
 		aktivniRacuni = new HashMap<>();
-		
+		zatvoreniRacuni = new ArrayList<>();
 	}
 	
+	
+	@Autowired
+	public void setKupacService(KupacService kupacService) {
+		this.kupacService = kupacService;
+	}
+
+
+
 	@Override
-	public String otvoriRacun(Kupac k) {
-		String racunId = prodavnica.noviBrojRacuna(k);
+	public String otvoriRacun(int idKupca) {
+		KupacDTO k = kupacService.kupacZaId(idKupca);
+		if(k==null) return null;
+		String racunId = prodavnica.noviBrojRacuna(k.getIme(),k.getPrezime());
 		Racun racun = new Racun(racunId, LocalDate.now());
-		aktivniRacuni.put(k, racun);
+		racun.setKupacId(idKupca);
+		aktivniRacuni.put(racunId, racun);
 		return racunId;
 	}
 	
-	public Map<Kupac,Racun> getAktivniRacuni(){
-		return aktivniRacuni;
+	public Collection<Racun> getAktivniRacuni(){
+		return aktivniRacuni.values();
 	}
 	
 	
 	// zatvara racun i vraca njegov id
-
-	@Override
-	public String zatvoriRacun(Kupac k) {
-		Racun racunKupca =  aktivniRacuni.get(k);
-		if(racunKupca==null) 
-			throw new NedozvoljenaOperacijaNadRacunomException("Racun nije otvoren, ne moze se zatvoriti");
-		k.addZatvereniRacun(racunKupca);
-		aktivniRacuni.remove(k);
-		return racunKupca.getRacunId();
-	}
 	
 	@Override
-	public boolean kupi(Kupac k, String proizvod, int kolicina) {
-		if(aktivniRacuni.get(k)==null) {  // nije otvoren racun, prvo cemo ga otvoriti
-			otvoriRacun(k);
-		}
-		if(prodavnica.kupi(proizvod, kolicina)) {
-			Racun racun = aktivniRacuni.get(k);
-			racun.dodajArtikal(proizvod, kolicina);			
-			return true;
-		}
-		return false;
+	public String zatvoriRacun(String idRacuna) {
+		Racun racunKupca =  aktivniRacuni.get(idRacuna);
+		if(racunKupca==null) 
+			throw new NedozvoljenaOperacijaNadRacunomException("Racun nije otvoren, ne moze se zatvoriti");		
+		// TODO za kupca sacuvati racun
+		racunKupca.zatvori();
+		zatvoreniRacuni.add(racunKupca);
+		aktivniRacuni.remove(idRacuna);
+		return racunKupca.getRacunId();
 		
 	}
 	
+	/**
+	 * Vraca idRacuna aktivnog za kupca sa prosledjenim id-jem ili null ako 
+	 * ne postoji aktivan racun za kupca 
+	 * @param idKupca
+	 * @return
+	 */
+	
+	public String aktivanRacunZaKupca(int idKupca) {
+		for(String racunId:aktivniRacuni.keySet()) {
+			if(aktivniRacuni.get(racunId).getKupacId() == idKupca)
+				return racunId;			
+		}		
+		return null;
+		
+	}
+	
+	
+	/**
+	 * samo dodaje proizvod sa zadatom kolicinom na aktivan racun kupca
+	 * ovde se jos ne smanjuje kolicina u inventaru
+	 */
+	
+	@Override
+	public boolean kupi(int idKupca, String proizvod, int kolicina) {
+		String racunId = aktivanRacunZaKupca(idKupca);
+		if(racunId == null) {  // nije otvoren racun, prvo cemo ga otvoriti
+			racunId = otvoriRacun(idKupca);
+		}
+		if(prodavnica.mozeDaKupi(proizvod, kolicina)) {
+			Racun racun = aktivniRacuni.get(racunId);
+			racun.dodajArtikal(proizvod, kolicina);			
+			return true;
+		}
+		return false;		
+	}
+	
+	
+	
+	
+	public List<Racun> getZatvoreniRacuni() {
+		return zatvoreniRacuni;
+	}
+
+	public void setZatvoreniRacuni(List<Racun> zatvoreniRacuni) {
+		this.zatvoreniRacuni = zatvoreniRacuni;
+	}
+
 	public boolean posaljiRacun(Kupac k, String racunId) {
 		try {
 			RacunDTO racun = prodavnica.izdajRacun(k, racunId);
@@ -137,5 +197,6 @@ public class KupacServiceImpl implements KupacService, RacunNotificationsService
 		
 	}
 
+	
 	
 }

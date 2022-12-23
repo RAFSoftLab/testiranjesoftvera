@@ -2,7 +2,7 @@ package trgovina.services;
 
 import java.util.List;
 
-public interface InventarService {	
+public interface ProdavnicaInventarService {	
 
 	
 	public int vratiBrojRazlicitihProizvoda();

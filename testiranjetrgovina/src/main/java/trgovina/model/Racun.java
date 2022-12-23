@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class Racun {
 	
+	private int kupacId;
 	private String racunId;
 	private boolean zatvoren;
 	private LocalDate datum;	
@@ -41,8 +42,15 @@ public class Racun {
 		return artikli.size();
 	}
 	
-	
-	
+	public int getKupacId() {
+		return kupacId;
+	}
+	public void setKupacId(int kupacId) {
+		this.kupacId = kupacId;
+	}
+	public void setZatvoren(boolean zatvoren) {
+		this.zatvoren = zatvoren;
+	}
 	public void dodajArtikal(String proizvod, int kolicina) {
 		if(artikli.containsKey(proizvod))
 			artikli.put(proizvod, artikli.get(proizvod)+kolicina);			
@@ -53,6 +61,7 @@ public class Racun {
 	public Map<String, Integer> getArtikli() {
 		return artikli;
 	}
+	
 	
 	
 	

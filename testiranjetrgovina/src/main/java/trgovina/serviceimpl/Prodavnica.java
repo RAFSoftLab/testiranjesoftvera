@@ -7,27 +7,26 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import trgovina.dtos.KupacDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
 import trgovina.model.Racun;
 import trgovina.model.TipKupca;
-import trgovina.services.InventarService;
+import trgovina.services.ProdavnicaInventarService;
 import trgovina.utils.BrojRacunaGenerator;
 
 @Service
 public class Prodavnica{
 
-	private static final double pdv = 0.2;
+	private static final double pdv = 0.2;	
 	
-	//private Map<String,Integer> inventar = new HashMap<String, Integer>();
-	//private Map<String,Double> cene = new HashMap<String, Double>();
 	private Map<TipKupca,Integer> popusti = new HashMap<TipKupca,Integer>();	
 	
 	private String nazivProdavnice;	
 	private String ziroRacun;	
 	
-	private InventarService inventarService;
+	private ProdavnicaInventarService inventarService;
 	
 	public Prodavnica() {
 		this.nazivProdavnice = "Big Shop";
@@ -39,29 +38,18 @@ public class Prodavnica{
 	}
 	
 	@Autowired
-	public void setInventarService(InventarService inventarService) {
+	public void setInventarService(ProdavnicaInventarService inventarService) {
 		this.inventarService = inventarService;
 	}	
 	
 		
-	public boolean kupi(String nazivProizvoda, int kolicina) {
-		List<String> sviNazivi = inventarService.vratiSveNaziveProizvoda();
-		if(!sviNazivi.contains(nazivProizvoda)) {
-			return false;
-		}else if(inventarService.vratiStanjeZaProizvod(nazivProizvoda)>=kolicina) {
-			inventarService.umanjiStanjeProizvoda(nazivProizvoda, kolicina);
-			return true;			
-		}else {
-			return false;
-		}
+	public boolean mozeDaKupi(String nazivProizvoda, int kolicina) {		
+		return (inventarService.vratiStanjeZaProizvod(nazivProizvoda)>=kolicina);			
 	}
-	
-		
+			
 	public int getKolicina(String naziv) {
 		return inventarService.vratiStanjeZaProizvod(naziv);
-	}
-	
-	
+	}	
 	
 	public void dodajPopust(TipKupca tipKupca, int popust) {
 		popusti.put(tipKupca, popust);
@@ -95,8 +83,8 @@ public class Prodavnica{
 	}
 
 	
-	public String noviBrojRacuna(Kupac k) {
-		return BrojRacunaGenerator.getInstance().generisiBroj(k, nazivProdavnice);
+	public String noviBrojRacuna(String imeKupca, String prezimeKupca) {
+		return BrojRacunaGenerator.getInstance().generisiBroj(imeKupca, prezimeKupca, nazivProdavnice);
 	}
 
 	
