@@ -21,7 +21,7 @@ public class RegistracijaConsumer {
 		this.brojKupovinaRepo = brojKupovinaRepo;
 	}
 
-
+	/*
 	@RabbitListener(queues = "${queue.name}")
     public void receive(String email) {
         System.out.println("Registrovan kupac " + email);
@@ -29,6 +29,7 @@ public class RegistracijaConsumer {
         brojKupovinaRepo.save(bk);
         
     }
+    */
 	
 	
 	

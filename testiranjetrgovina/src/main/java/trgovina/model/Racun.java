@@ -62,6 +62,10 @@ public class Racun {
 		return artikli;
 	}
 	
+	public int getBrojProizvoda(String proizvod) {
+		return artikli.get(proizvod);
+	}
+	
 	
 	
 	

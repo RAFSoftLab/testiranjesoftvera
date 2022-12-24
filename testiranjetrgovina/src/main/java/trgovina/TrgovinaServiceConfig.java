@@ -22,6 +22,10 @@ public class TrgovinaServiceConfig {
        return "http://localhost:8082";
     }
 	
+	@Bean
+    public String lojalnostServiceBaseUrl() {
+       return "http://localhost:8084";
+    }
 	
 
 }

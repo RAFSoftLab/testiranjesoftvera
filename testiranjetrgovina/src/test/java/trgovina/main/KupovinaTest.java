@@ -18,7 +18,7 @@ import trgovina.dtos.KupacDTO;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.main.KupovinaService;
 import trgovina.main.Prodavnica;
-import trgovina.services.KupacService;
+import trgovina.services.ProdavnicaKupacService;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -28,7 +28,7 @@ class KupovinaTest {
 	void testkupovinaServiceOtvaranjeRacuna() {
 		Prodavnica prodavnica = new Prodavnica();	
 		KupovinaService kupovinaService = new KupovinaService(prodavnica);	
-		KupacService kupacService = mock(KupacService.class);
+		ProdavnicaKupacService kupacService = mock(ProdavnicaKupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
 		
@@ -47,7 +47,7 @@ class KupovinaTest {
 		Prodavnica prodavnica = mock(Prodavnica.class);
 		when(prodavnica.noviBrojRacuna("Marko","Markovic")).thenReturn("MM12345");
 		KupovinaService kupovinaService = new KupovinaService(prodavnica);	
-		KupacService kupacService = mock(KupacService.class);
+		ProdavnicaKupacService kupacService = mock(ProdavnicaKupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
 		
@@ -60,7 +60,7 @@ class KupovinaTest {
 	void testkupovinaServiceZatvaranjeRacuna() {	
 		Prodavnica prodavnica = new Prodavnica();	
 		KupovinaService kupovinaService = new KupovinaService(prodavnica);
-		KupacService kupacService = mock(KupacService.class);
+		ProdavnicaKupacService kupacService = mock(ProdavnicaKupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
 		String brojRacuna = kupovinaService.otvoriRacun(1);

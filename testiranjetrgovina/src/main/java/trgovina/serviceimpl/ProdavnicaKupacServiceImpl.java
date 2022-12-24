@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 
 import trgovina.dtos.KupacDTO;
 import trgovina.serviceconsumers.KupacServiceConsumer;
-import trgovina.services.KupacService;
+import trgovina.services.ProdavnicaKupacService;
 
 @Service
-public class ProdavnicaKupacServiceImpl implements KupacService {
+public class ProdavnicaKupacServiceImpl implements ProdavnicaKupacService {
 	
 	KupacServiceConsumer kupacServiceConsumer;
 	

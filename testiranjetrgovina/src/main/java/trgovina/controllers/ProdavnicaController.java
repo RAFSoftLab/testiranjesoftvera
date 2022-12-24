@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import trgovina.dtos.RacunDTO;
+import trgovina.izuzeci.InventarException;
+import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.main.KupovinaService;
 import trgovina.model.Racun;
 
@@ -27,7 +30,13 @@ public class ProdavnicaController {
 	
 	@PostMapping(path="/zatvoriracun/{racunId}")
 	public String zatvoriRacin(@PathVariable String racunId) {
-		return kupovinaService.zatvoriRacun(racunId); 
+		try {
+			return kupovinaService.zatvoriRacun(racunId);
+		} catch (NedozvoljenaOperacijaNadRacunomException e) {			
+			e.printStackTrace();
+			// TODO log
+			return null;
+		} 
 	}
 	
 	@GetMapping(path="/racun/{racunId}")
@@ -36,16 +45,45 @@ public class ProdavnicaController {
 	}
 		
 	@PostMapping(path="/kupi")
-    public boolean kupiProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){  
-		boolean uspesna = kupovinaService.kupi(idKupca.intValue(),nazivProizvoda, kolicina);		
-    	return uspesna;    	
+    public boolean kupiProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){		
+		try {
+			return kupovinaService.kupi(idKupca.intValue(),nazivProizvoda, kolicina);
+		} catch (InventarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}		
+    	  	
     }
 	
 	
 	@PostMapping(path="/dodajnaracun")
-    public boolean dodajNaRacun(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam String idRacuna){  
-		boolean uspesna = kupovinaService.dodajNaAktivanRacun(idRacuna, nazivProizvoda, kolicina);		
-    	return uspesna;   	
+    public boolean dodajNaRacun(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam String idRacuna){		
+		try {
+			return kupovinaService.dodajNaAktivanRacun(idRacuna, nazivProizvoda, kolicina);
+		} catch (InventarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}		
+    	 	
     }
+	
+	
+	/**
+	 * izdaje racun za gotovu kupovinu, sa cenama
+	 * @param racunId
+	 * @return
+	 */
+	@GetMapping(path="/izdajracun/{racunId}")
+	public RacunDTO izdajRacun(@PathVariable String racunId) {
+		try {
+			return kupovinaService.izdajRacun(racunId);
+		} catch (InventarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 }

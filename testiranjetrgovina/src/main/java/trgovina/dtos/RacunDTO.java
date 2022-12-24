@@ -9,6 +9,7 @@ public class RacunDTO {
 	private String racunId;
 	private LocalDate datumKupovine;
 	private String nazivProdavnice;
+	private String ziroRacunProdavnice;
 	// naziv i kolicina kupljenih artikala
 	private Map<String, Integer> artikli;
 	private double ukupnaCenaBezPdv;
@@ -77,6 +78,14 @@ public class RacunDTO {
 	public void setRacunId(String racunId) {
 		this.racunId = racunId;
 	}
+	public String getZiroRacunProdavnice() {
+		return ziroRacunProdavnice;
+	}
+	public void setZiroRacunProdavnice(String ziroRacunProdavnice) {
+		this.ziroRacunProdavnice = ziroRacunProdavnice;
+	}
+	
+	
 	
 	
 	

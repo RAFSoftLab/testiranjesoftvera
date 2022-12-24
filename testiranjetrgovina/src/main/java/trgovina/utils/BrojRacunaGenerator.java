@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import trgovina.dtos.KupacDTO;
-import trgovina.model.Kupac;
+
 
 
 public class BrojRacunaGenerator {

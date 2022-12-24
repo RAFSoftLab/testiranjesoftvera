@@ -2,6 +2,8 @@ package trgovina.services;
 
 import java.util.List;
 
+import trgovina.izuzeci.InventarException;
+
 public interface ProdavnicaInventarService {	
 
 	
@@ -11,7 +13,7 @@ public interface ProdavnicaInventarService {
 	
 	public int vratiStanjeZaProizvod(String proizvod);
 	
-	public double vratiCenuZaProizvod(String proizvod);
+	public double vratiCenuZaProizvod(String proizvod) throws InventarException;
 	
 	public void umanjiStanjeProizvoda(String proizvod, int umanjenje);
 

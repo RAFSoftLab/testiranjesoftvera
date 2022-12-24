@@ -12,18 +12,13 @@ import org.springframework.stereotype.Service;
 
 import trgovina.dtos.KupacDTO;
 import trgovina.dtos.RacunDTO;
-import trgovina.izuzeci.InventarExeception;
+import trgovina.izuzeci.InventarException;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
-import trgovina.model.Kupac;
 import trgovina.model.Racun;
-import trgovina.model.TekuciRacun;
-import trgovina.services.EmailService;
-import trgovina.services.KupacService;
-import trgovina.services.PlacanjeService;
-import trgovina.services.RacunNotificationsService;
+import trgovina.services.ProdavnicaKupacService;
 
 @Service
-public class KupovinaService implements  RacunNotificationsService{
+public class KupovinaService{
 	
 	/**
 	 * svi trenutno otvoreni racuni, na kojima jos nije zavrsena kupovina
@@ -37,7 +32,7 @@ public class KupovinaService implements  RacunNotificationsService{
 	private Prodavnica prodavnica;
 	
 	@Autowired
-	private KupacService kupacService;
+	private ProdavnicaKupacService kupacService;
 	
 	public KupovinaService(Prodavnica prodavnica) {
 		this.prodavnica = prodavnica;		
@@ -47,7 +42,7 @@ public class KupovinaService implements  RacunNotificationsService{
 	
 	
 	@Autowired
-	public void setKupacService(KupacService kupacService) {
+	public void setKupacService(ProdavnicaKupacService kupacService) {
 		this.kupacService = kupacService;
 	}
 
@@ -56,14 +51,14 @@ public class KupovinaService implements  RacunNotificationsService{
 	 */
 
 	
-	public String otvoriRacun(int idKupca) {
-		if(getAktivanRacunZaKupca(idKupca)!=null) 
-			return getAktivanRacunZaKupca(idKupca);  // ako vec postoji aktivan racun za tog kupca, vracamo njegov broj
-		KupacDTO k = kupacService.kupacZaId(idKupca);
+	public String otvoriRacun(int kupacId) {
+		if(getAktivanRacunZaKupca(kupacId)!=null) 
+			return getAktivanRacunZaKupca(kupacId);  // ako vec postoji aktivan racun za tog kupca, vracamo njegov broj
+		KupacDTO k = kupacService.kupacZaId(kupacId);
 		if(k==null) return null;
 		String racunId = prodavnica.noviBrojRacuna(k.getIme(),k.getPrezime());
 		Racun racun = new Racun(racunId, LocalDate.now());
-		racun.setKupacId(idKupca);		
+		racun.setKupacId(kupacId);		
 		aktivniRacuni.put(racunId, racun);
 		return racunId;
 	}
@@ -76,7 +71,7 @@ public class KupovinaService implements  RacunNotificationsService{
 	// zatvara racun i vraca njegov id
 	
 	
-	public String zatvoriRacun(String idRacuna) {
+	public String zatvoriRacun(String idRacuna) throws NedozvoljenaOperacijaNadRacunomException {
 		Racun racunKupca =  aktivniRacuni.get(idRacuna);
 		if(racunKupca==null) 
 			throw new NedozvoljenaOperacijaNadRacunomException("Racun nije otvoren, ne moze se zatvoriti");		
@@ -91,13 +86,13 @@ public class KupovinaService implements  RacunNotificationsService{
 	/**
 	 * Vraca idRacuna aktivnog za kupca sa prosledjenim id-jem ili null ako 
 	 * ne postoji aktivan racun za kupca 
-	 * @param idKupca
+	 * @param kupacId
 	 * @return
 	 */
 	
-	public String getAktivanRacunZaKupca(int idKupca) {
+	public String getAktivanRacunZaKupca(int kupacId) {
 		for(String racunId:aktivniRacuni.keySet()) {
-			if(aktivniRacuni.get(racunId).getKupacId() == idKupca)
+			if(aktivniRacuni.get(racunId).getKupacId() == kupacId)
 				return racunId;			
 		}		
 		return null;		
@@ -121,26 +116,27 @@ public class KupovinaService implements  RacunNotificationsService{
 	/**
 	 * samo dodaje proizvod sa zadatom kolicinom na aktivan racun kupca
 	 * ovde se jos ne smanjuje kolicina u inventaru
+	 * @throws InventarException 
 	 */
 	
 	
-	public boolean kupi(int idKupca, String proizvod, int kolicina) {
-		String racunId = getAktivanRacunZaKupca(idKupca);
+	public boolean kupi(int kupacId, String proizvod, int kolicina) throws InventarException {
+		String racunId = getAktivanRacunZaKupca(kupacId);
 		if(racunId == null) {  // nije otvoren racun, prvo cemo ga otvoriti
-			racunId = otvoriRacun(idKupca);
+			racunId = otvoriRacun(kupacId);
 		}
 		return dodajNaAktivanRacun(racunId, proizvod, kolicina);
 		
 	}
 	
-	public boolean dodajNaAktivanRacun(String racunId, String proizvod, int kolicina) {
+	public boolean dodajNaAktivanRacun(String racunId, String proizvod, int kolicina) throws InventarException {
 		if(isAktivanRacun(racunId)) {
 			if(prodavnica.mozeDaKupi(proizvod, kolicina)) {
 				Racun racun = aktivniRacuni.get(racunId);
 				racun.dodajArtikal(proizvod, kolicina);			
 				return true;
 			}else {
-				throw new InventarExeception("Nema dovoljno proizvoda na stanju");
+				throw new InventarException("Nema dovoljno proizvoda na stanju");
 			}		
 		}
 		return false;			
@@ -166,72 +162,16 @@ public class KupovinaService implements  RacunNotificationsService{
 	public void setZatvoreniRacuni(List<Racun> zatvoreniRacuni) {
 		this.zatvoreniRacuni = zatvoreniRacuni;
 	}
-
-	public boolean posaljiRacun(Kupac k, String racunId) {
-		try {
-			RacunDTO racun = prodavnica.izdajRacun(k, racunId);
-			return prepareAndSendMessage(k,racun);
-		}catch(NedozvoljenaOperacijaNadRacunomException e) {
-			return false;	
-		}		
-		
-		
-	}
 	
-	
-	private EmailService emailService;	
-
-	@Override
-	public void setEmailService(EmailService emailService) {
-		this.emailService = emailService;		
+	public RacunDTO izdajRacun(String racunId) throws InventarException{
+		Racun r = getZatvorenRacunPoId(racunId);
+		if(r==null) return null;
+		return prodavnica.izdajRacun(r);
 	}
 
-
-	@Override
-	public boolean prepareAndSendMessage(Kupac k, RacunDTO racun) {		
-		String subject = "Racun "+racun.getRacunId();
-		String message = racun.getPrintableRacun();
-		return emailService.sendEmail(k.getEmail(), subject, message);
-		
-	}
 	
-	private PlacanjeService placanjeService;
 	
-	public void setPlacanjeService(PlacanjeService placanjeService) {
-		this.placanjeService = placanjeService;
-	}
 	
-	/**
-	 * racun mora biti zatvoren i kupac mora imati dovoljno para na nekom od tekucih racuna
-	 * ako nema dovoljno para na jednom racunu pravi se vise uplata sa razlicitih racuna 
-	 * 
-	 * TODO testirati
-	 * 
-	 */
-	
-	public void uplatiRacun(Kupac k, String racunId) {
-		RacunDTO racun = prodavnica.izdajRacun(k, racunId);
-		double iznosZaPlacanje = racun.getUkupnaCenaSaPopustom();
-		if(k.getUkupnoStanje()<iznosZaPlacanje)
-			throw new NedozvoljenaOperacijaNadRacunomException("Kupac nema dovoljno sredstava na racunu");
-		double preostaloZaPlacanje = iznosZaPlacanje;
-		List<TekuciRacun> trList = k.getTekuciRacuni();
-		int i = 0;
-		while(preostaloZaPlacanje>0 && i<trList.size()) {
-			TekuciRacun tr = trList.get(i);
-			if(preostaloZaPlacanje>=tr.getStanje()) {
-				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(), prodavnica.getZiroRacun(), racunId, tr.getStanje());
-				preostaloZaPlacanje-=tr.getStanje();
-				tr.isplati(tr.getStanje());				
-			}else {
-				placanjeService.plati(k.getIme()+k.getPrezime(), tr.getBrojRacuna(),  prodavnica.getZiroRacun(), racunId, preostaloZaPlacanje);
-				preostaloZaPlacanje=0;
-				tr.isplati(tr.getStanje());		
-			}
-			
-		}
-		
-	}
 
 
 	

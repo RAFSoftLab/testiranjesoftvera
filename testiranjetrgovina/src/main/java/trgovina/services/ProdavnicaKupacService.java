@@ -2,7 +2,7 @@ package trgovina.services;
 
 import trgovina.dtos.KupacDTO;
 
-public interface KupacService {
+public interface ProdavnicaKupacService {
 	
 	public KupacDTO kupacZaId(int id);
 

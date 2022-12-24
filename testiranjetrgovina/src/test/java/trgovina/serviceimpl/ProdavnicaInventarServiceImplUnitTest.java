@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import trgovina.dtos.ProizvodDTO;
 import trgovina.serviceconsumers.InventarServiceConsumer;
 
-// jedinicni test za inventar prodavnice
+// jedinicni testovi za inventar prodavnice
 
 class ProdavnicaInventarServiceImplUnitTest {
 	
