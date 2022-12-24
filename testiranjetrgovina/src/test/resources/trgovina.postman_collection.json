@@ -1,0 +1,300 @@
+{
+	"info": {
+		"_postman_id": "fe39bbaf-dce7-4a25-94ca-b07e5263d0ec",
+		"name": "trgovina",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "kupovina",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/kupi?nazivProizvoda=sapun&kolicina=30&idKupca=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"kupi"
+					],
+					"query": [
+						{
+							"key": "nazivProizvoda",
+							"value": "sapun"
+						},
+						{
+							"key": "kolicina",
+							"value": "30"
+						},
+						{
+							"key": "idKupca",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "svi kupci",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "registracija kupca",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"ime\": \"Mirko\",\n        \"prezime\": \"Mirkvic\",\n        \"email\": \"mmirkovic@gmail.com\"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8082/kupac/registracija",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"registracija"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "kupac za id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "lojalnost-sve",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8084/lojalnost/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"lojalnost",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "otvaranje racuna",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/otvoriracun/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"otvoriracun",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pregled racuna",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/racun/PPBIG1010472",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"racun",
+						"PPBIG1010472"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "zatvaranje racuna",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/zatvoriracun/PPBIG1010472",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"zatvoriracun",
+						"PPBIG1010472"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "izdaj racun",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/izdajracun/PPBIG1010472",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"izdajracun",
+						"PPBIG1010472"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "umanjenje stanja",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/inventar/umanji?naziv=sampon&umanjenje=45",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"inventar",
+						"umanji"
+					],
+					"query": [
+						{
+							"key": "naziv",
+							"value": "sampon"
+						},
+						{
+							"key": "umanjenje",
+							"value": "45"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "inventar-sviprozvodi",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/inventar/all",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"inventar",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "popust",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8084/lojalnost/popust?email=ppetrovic@gmail.com",
+					"host": [
+						"localhost"
+					],
+					"port": "8084",
+					"path": [
+						"lojalnost",
+						"popust"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "ppetrovic@gmail.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "aktivan racun za kupca",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8083/prodavnica/aktivanracunzakupca/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8083",
+					"path": [
+						"prodavnica",
+						"aktivanracunzakupca",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

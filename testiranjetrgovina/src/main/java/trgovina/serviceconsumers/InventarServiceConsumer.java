@@ -50,6 +50,15 @@ public class InventarServiceConsumer {
 		
 	}
 	
+	public void azurirajStanjeInventaraSinh(String nazivProizvoda, int umanjenje) {  	      	
+	      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURL("umanji"));			
+		  builder.queryParam("naziv", nazivProizvoda);
+		  builder.queryParam("umanjenje", umanjenje);		  
+		  restTemplate.put(builder.toUriString(),null);
+		  
+			        	    		  
+	}
+	
 	public void azurirajStanjeInventaraAsinh(String nazivProizvda, int umanjenje) {  	      	
 	      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURL("umanji"));			
 		  builder.queryParam("naziv", nazivProizvda);

@@ -1,9 +1,12 @@
 package trgovina.main;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import trgovina.dtos.KupacDTO;
@@ -29,9 +32,12 @@ public class Prodavnica{
 	private ProdavnicaKupacService kupacService;
 	private ProdavnicaLojalnostService lojalnostService;
 	
+	private List<RacunDTO> izdatiRacuni;
+	
 	public Prodavnica() {
 		this.nazivProdavnice = "Big Shop";
 		this.ziroRacun = "123456789";
+		izdatiRacuni = new ArrayList<>();
 	}
 	
 	public Prodavnica(String naziv) {
@@ -64,7 +70,9 @@ public class Prodavnica{
 	/**
 	 * Na osnovu interne reprezentacije racuna izdaje se racun sa obracunatom cenom. 
 	 * 
-	 * Racun mora biti zatvorem što znaci da je zavrsena kupovina. 
+	 * Racun mora biti zatvoren što znaci da je zavrsena kupovina. 
+	 * 
+	 * Svaki racun se moze izdati samo jednom i kada se izda smesta se u listu izdatiRacuni 
 	 * 
 	 * Racun sadrzi podatke o prodavnici, naziv i ziro racun, spisak svih artikala, cenu bez i sa pdv-om,
 	 * kao i cenu sa popustom.
@@ -72,7 +80,9 @@ public class Prodavnica{
 	 * Podaci o stanju proizvoda, podaci o kupcu i popustima preuzimaju se iz odvojenih servisa.  
 	 * 
 	 * Prilikom izdavanja racuna ponovo proveravamo da li ima dovoljno prozvoda, ako ne postoji dovoljna kolicina izdaje se koliko 
-	 * ima stanju, ako proizvoda uopste nema na stanju, taj artikal se ne nalazi na racunu i ne naplacuje se 
+	 * ima stanju, ako proizvoda uopste nema na stanju, taj artikal se ne nalazi na racunu i ne naplacuje se.
+	 * 
+	 * Prilkom izdavanja racuna vrsi se umanjenje stanja artikala u inventaru. 
 	 * 
 	 * 
 	 * @param r
@@ -81,8 +91,11 @@ public class Prodavnica{
 
 	public RacunDTO izdajRacun(Racun r) throws InventarException {
 		if(r.isZatvoren()==false)
-			return null;
-		RacunDTO racun = new RacunDTO();
+			return null;		
+		RacunDTO racun = izdatRacun(r.getRacunId());
+		if(racun!=null)
+			return racun;			
+		racun = new RacunDTO();
 		racun.setNazivProdavnice(nazivProdavnice);		
 		racun.setZiroRacunProdavnice(ziroRacun);
 		KupacDTO kupac = kupacService.kupacZaId(r.getKupacId());
@@ -103,6 +116,7 @@ public class Prodavnica{
 			if(brojArtikalaNaRacunu>0) {
 				artikli.put(proizvod, brojArtikalaNaRacunu);
 				double cena = inventarService.vratiCenuZaProizvod(proizvod);
+				inventarService.umanjiStanjeProizvoda(proizvod, brojArtikalaNaRacunu);
 				ukupnaCena += cena*brojArtikalaNaRacunu;
 			}						
 		}
@@ -111,6 +125,7 @@ public class Prodavnica{
 		racun.setUkupnaCenaSaPdv(cenaSaPdv);		
 		int popust = lojalnostService.vratiPopustZaKupca(kupac.getEmail());				
 		racun.setUkupnaCenaSaPopustom(cenaSaPdv*(100-popust)/100);		
+		izdatiRacuni.add(racun);
 		return racun;
 	}
 	
@@ -127,6 +142,14 @@ public class Prodavnica{
 		RacunDTO racun = izdajRacun(r);
 		KupacDTO kupac = kupacService.kupacZaId(r.getKupacId());
 		prepareAndSendMessage(kupac.getEmail(), kupac.getIme()+" "+kupac.getPrezime(), racun);		
+	}
+	
+	private RacunDTO izdatRacun(String racunId) {
+		for(RacunDTO r:izdatiRacuni) {
+			if(r.getRacunId().equals(racunId))
+				return r;
+		}
+		return null;
 	}
 
 	

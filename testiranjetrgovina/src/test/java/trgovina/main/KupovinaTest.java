@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import trgovina.dtos.KupacDTO;
-import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
+import trgovina.izuzeci.RacunException;
 import trgovina.main.KupovinaService;
 import trgovina.main.Prodavnica;
 import trgovina.services.ProdavnicaKupacService;
@@ -79,7 +79,7 @@ class KupovinaTest {
 		Prodavnica prodavnica = new Prodavnica();	
 		KupovinaService kupovinaService = new KupovinaService(prodavnica);		
 		
-		assertThrows(NedozvoljenaOperacijaNadRacunomException.class,() -> kupovinaService.zatvoriRacun("MM1234"));
+		assertThrows(RacunException.class,() -> kupovinaService.zatvoriRacun("MM1234"));
 		
 					
 	}

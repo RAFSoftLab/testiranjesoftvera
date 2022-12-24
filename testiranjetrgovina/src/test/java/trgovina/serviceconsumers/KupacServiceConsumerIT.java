@@ -20,7 +20,7 @@ class KupacServiceConsumerIT {
 	@Test
 	void testVratiZaId() {
 		KupacDTO kupac = kupacServiceConsumer.vratiKupcaZaId(Long.valueOf(1));		
-		assertEquals("ppetrovc@gmail.com", kupac.getEmail());
+		assertEquals("ppetrovic@gmail.com", kupac.getEmail());
 	}
 	
 	@Test

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import trgovina.dtos.RacunDTO;
 import trgovina.izuzeci.InventarException;
-import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
+import trgovina.izuzeci.RacunException;
 import trgovina.main.KupovinaService;
 import trgovina.model.Racun;
 
@@ -31,8 +31,9 @@ public class ProdavnicaController {
 	@PostMapping(path="/zatvoriracun/{racunId}")
 	public String zatvoriRacin(@PathVariable String racunId) {
 		try {
-			return kupovinaService.zatvoriRacun(racunId);
-		} catch (NedozvoljenaOperacijaNadRacunomException e) {			
+			String racun = kupovinaService.zatvoriRacun(racunId);
+			return racun;
+		} catch (RacunException e) {			
 			e.printStackTrace();
 			// TODO log
 			return null;
@@ -43,11 +44,17 @@ public class ProdavnicaController {
 	public Racun vratiRacun(@PathVariable String racunId) {
 		return kupovinaService.vratiRacunZaId(racunId);
 	}
+	
+	@GetMapping(path="/aktivanracunzakupca/{idKupca}")
+	public String aktivanRacunZaKupca(@PathVariable int idKupca) {
+		return kupovinaService.getAktivanRacunZaKupca(idKupca);
+	}
 		
 	@PostMapping(path="/kupi")
     public boolean kupiProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){		
 		try {
-			return kupovinaService.kupi(idKupca.intValue(),nazivProizvoda, kolicina);
+			boolean uspesna = kupovinaService.kupi(idKupca.intValue(),nazivProizvoda, kolicina); 
+			return uspesna;
 		} catch (InventarException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -60,7 +67,8 @@ public class ProdavnicaController {
 	@PostMapping(path="/dodajnaracun")
     public boolean dodajNaRacun(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam String idRacuna){		
 		try {
-			return kupovinaService.dodajNaAktivanRacun(idRacuna, nazivProizvoda, kolicina);
+			boolean uspesna = kupovinaService.dodajNaAktivanRacun(idRacuna, nazivProizvoda, kolicina);
+			return uspesna;
 		} catch (InventarException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -78,7 +86,8 @@ public class ProdavnicaController {
 	@GetMapping(path="/izdajracun/{racunId}")
 	public RacunDTO izdajRacun(@PathVariable String racunId) {
 		try {
-			return kupovinaService.izdajRacun(racunId);
+			RacunDTO r = kupovinaService.izdajRacun(racunId); 
+			return r;
 		} catch (InventarException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

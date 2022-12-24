@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import trgovina.dtos.KupacDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.izuzeci.InventarException;
-import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
+import trgovina.izuzeci.RacunException;
 import trgovina.model.Racun;
 import trgovina.services.ProdavnicaKupacService;
 
@@ -71,10 +71,10 @@ public class KupovinaService{
 	// zatvara racun i vraca njegov id
 	
 	
-	public String zatvoriRacun(String idRacuna) throws NedozvoljenaOperacijaNadRacunomException {
+	public String zatvoriRacun(String idRacuna) throws RacunException {
 		Racun racunKupca =  aktivniRacuni.get(idRacuna);
 		if(racunKupca==null) 
-			throw new NedozvoljenaOperacijaNadRacunomException("Racun nije otvoren, ne moze se zatvoriti");		
+			throw new RacunException("Racun nije otvoren, ne moze se zatvoriti");		
 		// TODO za kupca sacuvati racun
 		racunKupca.zatvori();
 		zatvoreniRacuni.add(racunKupca);
