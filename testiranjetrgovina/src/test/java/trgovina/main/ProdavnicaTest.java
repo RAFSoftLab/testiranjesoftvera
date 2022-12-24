@@ -1,4 +1,4 @@
-package trgovina.serviceimpl;
+package trgovina.main;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import trgovina.serviceimpl.Prodavnica;
+import trgovina.main.Prodavnica;
 
 
 

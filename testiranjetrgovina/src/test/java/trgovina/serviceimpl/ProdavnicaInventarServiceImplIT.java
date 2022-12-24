@@ -21,7 +21,7 @@ import trgovina.serviceconsumers.InventarServiceConsumer;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class ProdavnicaInventarServiceImplIntegrationTest {
+class ProdavnicaInventarServiceImplIT {
 	
 	
 	private ProdavnicaInventarServiceImpl prodavnicaInventarService;

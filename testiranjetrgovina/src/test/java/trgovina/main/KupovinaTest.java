@@ -1,4 +1,4 @@
-package trgovina.serviceimpl;
+package trgovina.main;
 
 
 import static org.junit.Assert.assertNotNull;
@@ -16,16 +16,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import trgovina.dtos.KupacDTO;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
+import trgovina.main.KupovinaService;
+import trgovina.main.Prodavnica;
 import trgovina.services.KupacService;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class KupovinaServiceImplTest {
+class KupovinaTest {
 
 	@Test
 	void testkupovinaServiceOtvaranjeRacuna() {
 		Prodavnica prodavnica = new Prodavnica();	
-		KupovinaServiceImpl kupovinaService = new KupovinaServiceImpl(prodavnica);	
+		KupovinaService kupovinaService = new KupovinaService(prodavnica);	
 		KupacService kupacService = mock(KupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
@@ -33,7 +35,7 @@ class KupovinaServiceImplTest {
 		String brojRacuna = kupovinaService.otvoriRacun(1);
 		
 		assertTrue(brojRacuna.startsWith("MM"));
-		assertNotNull(kupovinaService.aktivanRacunZaKupca(1));
+		assertNotNull(kupovinaService.getAktivanRacunZaKupca(1));
 		
 		
 	}
@@ -44,20 +46,20 @@ class KupovinaServiceImplTest {
 		// generator broja racuna ima nedeterministicko ponasanje, mozemo taj deo da laziramo		
 		Prodavnica prodavnica = mock(Prodavnica.class);
 		when(prodavnica.noviBrojRacuna("Marko","Markovic")).thenReturn("MM12345");
-		KupovinaServiceImpl kupovinaService = new KupovinaServiceImpl(prodavnica);	
+		KupovinaService kupovinaService = new KupovinaService(prodavnica);	
 		KupacService kupacService = mock(KupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
 		
 		String brojRacuna = kupovinaService.otvoriRacun(1);		
 		
-		assertEquals("MM12345",kupovinaService.aktivanRacunZaKupca(1));			
+		assertEquals("MM12345",kupovinaService.getAktivanRacunZaKupca(1));			
 	}
 	
 	@Test
 	void testkupovinaServiceZatvaranjeRacuna() {	
 		Prodavnica prodavnica = new Prodavnica();	
-		KupovinaServiceImpl kupovinaService = new KupovinaServiceImpl(prodavnica);
+		KupovinaService kupovinaService = new KupovinaService(prodavnica);
 		KupacService kupacService = mock(KupacService.class);
 		when(kupacService.kupacZaId(1)).thenReturn(new KupacDTO(Long.valueOf(1), "Marko", "Markovic", "mmarkovic@gmail.com"));
 		kupovinaService.setKupacService(kupacService);
@@ -65,7 +67,7 @@ class KupovinaServiceImplTest {
 		
 		kupovinaService.zatvoriRacun(brojRacuna);
 		
-		assertNull(kupovinaService.aktivanRacunZaKupca(1));
+		assertNull(kupovinaService.getAktivanRacunZaKupca(1));
 		assertEquals(1,kupovinaService.getZatvoreniRacuni().size());
 		assertEquals(brojRacuna,kupovinaService.getZatvoreniRacuni().get(0).getRacunId());			
 	}
@@ -75,7 +77,7 @@ class KupovinaServiceImplTest {
 	@Test
 	void testkupovinaServiceZatvaranjeRacunaNeispravno() {	
 		Prodavnica prodavnica = new Prodavnica();	
-		KupovinaServiceImpl kupovinaService = new KupovinaServiceImpl(prodavnica);		
+		KupovinaService kupovinaService = new KupovinaService(prodavnica);		
 		
 		assertThrows(NedozvoljenaOperacijaNadRacunomException.class,() -> kupovinaService.zatvoriRacun("MM1234"));
 		

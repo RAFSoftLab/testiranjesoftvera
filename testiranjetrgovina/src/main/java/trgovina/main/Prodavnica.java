@@ -1,4 +1,4 @@
-package trgovina.serviceimpl;
+package trgovina.main;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +44,7 @@ public class Prodavnica{
 	
 		
 	public boolean mozeDaKupi(String nazivProizvoda, int kolicina) {		
-		return (inventarService.vratiStanjeZaProizvod(nazivProizvoda)>=kolicina);			
+		return inventarService.vratiStanjeZaProizvod(nazivProizvoda)>=kolicina;			
 	}
 			
 	public int getKolicina(String naziv) {

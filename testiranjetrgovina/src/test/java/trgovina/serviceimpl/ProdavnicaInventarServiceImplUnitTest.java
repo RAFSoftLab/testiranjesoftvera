@@ -17,27 +17,20 @@ import trgovina.serviceconsumers.InventarServiceConsumer;
 
 class ProdavnicaInventarServiceImplUnitTest {
 	
-	private InventarServiceConsumer inventarServiceConsumer;
-	private ProdavnicaInventarServiceImpl prodavnicaInventarService;
 	
 	
-	@BeforeEach
-	public void prepareMock() {
-		inventarServiceConsumer = mock(InventarServiceConsumer.class);
+	@Test
+	void testStanjeZaProizvod() {	
+		InventarServiceConsumer inventarServiceConsumer = mock(InventarServiceConsumer.class);
 		List<ProizvodDTO> proizvodi = new ArrayList<>();
 		proizvodi.add(new ProizvodDTO("sampon","kozmetika",100.0,90));
 		proizvodi.add(new ProizvodDTO("sapun","kozetika",50.0,50));
 		proizvodi.add(new ProizvodDTO("hleb","prehrambeni",40.0,80));
 		proizvodi.add(new ProizvodDTO("mleko","prehrambeni",30.0,100));
 		when(inventarServiceConsumer.vratiSveProizvode()).thenReturn(proizvodi);
-		prodavnicaInventarService = new ProdavnicaInventarServiceImpl(inventarServiceConsumer);
-		
-	}
-	
-
-	@Test
-	void testBrojRazlicitihProizvoda() {		
-		assertEquals(4,prodavnicaInventarService.vratiBrojRazlicitihProizvoda());
+		when(inventarServiceConsumer.vratiProizvodePoNazivu("sampon")).thenReturn(proizvodi.get(0));
+		ProdavnicaInventarServiceImpl prodavnicaInventarService = new ProdavnicaInventarServiceImpl(inventarServiceConsumer);
+		assertEquals(90,prodavnicaInventarService.vratiStanjeZaProizvod("sampon"));
 	}
 	
 	// granicni slucajevi
@@ -62,11 +55,8 @@ class ProdavnicaInventarServiceImplUnitTest {
 		assertEquals(0,prodavnicaInventarService.vratiBrojRazlicitihProizvoda());
 	}
 	
-	@Test
-	void testStanjeZaProizvod() {		
-		assertEquals(90,prodavnicaInventarService.vratiStanjeZaProizvod("sampon"));
-	}
 	
-	// ... ostale opracije
+	
+	
 	
 }

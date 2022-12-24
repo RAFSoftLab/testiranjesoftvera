@@ -1,14 +1,15 @@
 package trgovina.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import trgovina.serviceimpl.Prodavnica;
-import trgovina.services.KupovinaService;
 
-
+import trgovina.main.KupovinaService;
+import trgovina.model.Racun;
 
 
 @RestController
@@ -16,23 +17,35 @@ import trgovina.services.KupovinaService;
 public class ProdavnicaController {
 	
 	@Autowired
-	private KupovinaService kupovina;
+	private KupovinaService kupovinaService;
 	
 	
-	@PostMapping(path="/otvoriracun")
-	public boolean otvoriRacin(Long kupacId) {
-		return true; 
+	@PostMapping(path="/otvoriracun/{kupacId}")
+	public String otvoriRacin(@PathVariable int kupacId) {
+		return kupovinaService.otvoriRacun(kupacId);		 
 	}
 	
-	@PostMapping(path="/zatvoriracun")
-	public boolean zatvoriRacin(Long kupacId) {
-		return true; 
+	@PostMapping(path="/zatvoriracun/{racunId}")
+	public String zatvoriRacin(@PathVariable String racunId) {
+		return kupovinaService.zatvoriRacun(racunId); 
 	}
-
+	
+	@GetMapping(path="/racun/{racunId}")
+	public Racun vratiRacun(@PathVariable String racunId) {
+		return kupovinaService.vratiRacunZaId(racunId);
+	}
+		
 	@PostMapping(path="/kupi")
-    public boolean kupiJedanProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){  
-		boolean uspesna = kupovina.kupi(idKupca.intValue(),nazivProizvoda, kolicina);		
+    public boolean kupiProizvod(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam Long idKupca){  
+		boolean uspesna = kupovinaService.kupi(idKupca.intValue(),nazivProizvoda, kolicina);		
     	return uspesna;    	
+    }
+	
+	
+	@PostMapping(path="/dodajnaracun")
+    public boolean dodajNaRacun(@RequestParam String nazivProizvoda,@RequestParam int kolicina, @RequestParam String idRacuna){  
+		boolean uspesna = kupovinaService.dodajNaAktivanRacun(idRacuna, nazivProizvoda, kolicina);		
+    	return uspesna;   	
     }
 
 }

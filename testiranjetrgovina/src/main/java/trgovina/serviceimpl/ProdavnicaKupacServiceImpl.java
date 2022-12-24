@@ -19,7 +19,7 @@ public class ProdavnicaKupacServiceImpl implements KupacService {
 
 	@Override
 	public KupacDTO kupacZaId(int id) {		
-		return kupacZaId(id);
+		return kupacServiceConsumer.vratiKupcaZaId(Long.valueOf(id));
 	}
 	
 	

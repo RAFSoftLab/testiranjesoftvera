@@ -21,6 +21,8 @@ public class Kupac {
 	private String email;	
 	@OneToMany
 	private List<TekuciRacun> tekuciRacuni = new ArrayList<>();
+	@OneToMany
+	private List<Kupovina> kupovina = new ArrayList<>();
 	
 	
 	public Kupac() {			

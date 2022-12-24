@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import trgovina.dtos.ProizvodDTO;
-import trgovina.izuzeci.NepostojiProizvodExeception;
+import trgovina.izuzeci.InventarExeception;
 import trgovina.serviceconsumers.InventarServiceConsumer;
 import trgovina.services.ProdavnicaInventarService;
 
@@ -49,14 +49,15 @@ public class ProdavnicaInventarServiceImpl implements ProdavnicaInventarService{
 	@Override
 	public int vratiStanjeZaProizvod(String naziv) {		
 		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);
-		if(p==null) return 0;
+		if(p==null) 
+			return 0;
 		return p.getStanje();
 	}
 
 	@Override
 	public double vratiCenuZaProizvod(String naziv) {
 		ProizvodDTO p = inventarserviceConsumer.vratiProizvodePoNazivu(naziv);		
-		if(p==null) throw new NepostojiProizvodExeception("Proizvod pod nazivom "+naziv+" ne postoji");
+		if(p==null) throw new InventarExeception("Proizvod pod nazivom "+naziv+" ne postoji");
 		return p.getCena();
 		
 	}

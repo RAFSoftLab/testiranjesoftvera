@@ -2,36 +2,31 @@ package trgovina.serviceconsumers;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import trgovina.dtos.ProizvodDTO;
+import trgovina.dtos.KupacDTO;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class InventarServiceConsumerTest {
+class KupacServiceConsumerIT {
 	
 	@Autowired
-	InventarServiceConsumer inventarServiceConsumer;
-
+	KupacServiceConsumer kupacServiceConsumer;
+	
 	@Test
-	void testVratiSveProizvode() {
-		List<ProizvodDTO> inventar = inventarServiceConsumer.vratiSveProizvode();
-		
-		assertEquals(4, inventar.size());
+	void testVratiZaId() {
+		KupacDTO kupac = kupacServiceConsumer.vratiKupcaZaId(Long.valueOf(1));		
+		assertEquals("ppetrovc@gmail.com", kupac.getEmail());
 	}
 	
 	@Test
-	void testProizvodPoNazivu() {
-		ProizvodDTO proizvod = inventarServiceConsumer.vratiProizvodePoNazivu("sampon");
-		
-		assertEquals("sampon",proizvod.getNaziv());
+	void testVratiZaIdNePostoji() {
+		KupacDTO kupac = kupacServiceConsumer.vratiKupcaZaId(Long.valueOf(7));		
+		assertNull(kupac);
 	}
-
 
 }

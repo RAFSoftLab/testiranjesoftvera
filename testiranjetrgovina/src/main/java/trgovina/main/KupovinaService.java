@@ -1,4 +1,4 @@
-package trgovina.serviceimpl;
+package trgovina.main;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service;
 
 import trgovina.dtos.KupacDTO;
 import trgovina.dtos.RacunDTO;
+import trgovina.izuzeci.InventarExeception;
 import trgovina.izuzeci.NedozvoljenaOperacijaNadRacunomException;
 import trgovina.model.Kupac;
 import trgovina.model.Racun;
 import trgovina.model.TekuciRacun;
 import trgovina.services.EmailService;
 import trgovina.services.KupacService;
-import trgovina.services.KupovinaService;
 import trgovina.services.PlacanjeService;
 import trgovina.services.RacunNotificationsService;
 
 @Service
-public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsService{
+public class KupovinaService implements  RacunNotificationsService{
 	
 	/**
 	 * svi trenutno otvoreni racuni, na kojima jos nije zavrsena kupovina
@@ -39,7 +39,7 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 	@Autowired
 	private KupacService kupacService;
 	
-	public KupovinaServiceImpl(Prodavnica prodavnica) {
+	public KupovinaService(Prodavnica prodavnica) {
 		this.prodavnica = prodavnica;		
 		aktivniRacuni = new HashMap<>();
 		zatvoreniRacuni = new ArrayList<>();
@@ -51,15 +51,19 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 		this.kupacService = kupacService;
 	}
 
+	/**
+	 * jedan kupac ne moze imati vise aktivnih racuna
+	 */
 
-
-	@Override
+	
 	public String otvoriRacun(int idKupca) {
+		if(getAktivanRacunZaKupca(idKupca)!=null) 
+			return getAktivanRacunZaKupca(idKupca);  // ako vec postoji aktivan racun za tog kupca, vracamo njegov broj
 		KupacDTO k = kupacService.kupacZaId(idKupca);
 		if(k==null) return null;
 		String racunId = prodavnica.noviBrojRacuna(k.getIme(),k.getPrezime());
 		Racun racun = new Racun(racunId, LocalDate.now());
-		racun.setKupacId(idKupca);
+		racun.setKupacId(idKupca);		
 		aktivniRacuni.put(racunId, racun);
 		return racunId;
 	}
@@ -71,7 +75,7 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 	
 	// zatvara racun i vraca njegov id
 	
-	@Override
+	
 	public String zatvoriRacun(String idRacuna) {
 		Racun racunKupca =  aktivniRacuni.get(idRacuna);
 		if(racunKupca==null) 
@@ -91,12 +95,25 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 	 * @return
 	 */
 	
-	public String aktivanRacunZaKupca(int idKupca) {
+	public String getAktivanRacunZaKupca(int idKupca) {
 		for(String racunId:aktivniRacuni.keySet()) {
 			if(aktivniRacuni.get(racunId).getKupacId() == idKupca)
 				return racunId;			
 		}		
-		return null;
+		return null;		
+	}
+	
+	/**
+	 * prvo gleda u aktivnim racunima, onda u zatvorenim
+	 */
+	
+	
+	public Racun vratiRacunZaId(String idRacuna) {
+		if(aktivniRacuni.containsKey(idRacuna)) {
+			return aktivniRacuni.get(idRacuna);			
+		}else {
+			return getZatvorenRacunPoId(idRacuna);
+		}
 		
 	}
 	
@@ -106,25 +123,44 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 	 * ovde se jos ne smanjuje kolicina u inventaru
 	 */
 	
-	@Override
+	
 	public boolean kupi(int idKupca, String proizvod, int kolicina) {
-		String racunId = aktivanRacunZaKupca(idKupca);
+		String racunId = getAktivanRacunZaKupca(idKupca);
 		if(racunId == null) {  // nije otvoren racun, prvo cemo ga otvoriti
 			racunId = otvoriRacun(idKupca);
 		}
-		if(prodavnica.mozeDaKupi(proizvod, kolicina)) {
-			Racun racun = aktivniRacuni.get(racunId);
-			racun.dodajArtikal(proizvod, kolicina);			
-			return true;
-		}
-		return false;		
+		return dodajNaAktivanRacun(racunId, proizvod, kolicina);
+		
 	}
 	
+	public boolean dodajNaAktivanRacun(String racunId, String proizvod, int kolicina) {
+		if(isAktivanRacun(racunId)) {
+			if(prodavnica.mozeDaKupi(proizvod, kolicina)) {
+				Racun racun = aktivniRacuni.get(racunId);
+				racun.dodajArtikal(proizvod, kolicina);			
+				return true;
+			}else {
+				throw new InventarExeception("Nema dovoljno proizvoda na stanju");
+			}		
+		}
+		return false;			
+	}
 	
+	private boolean isAktivanRacun(String idRacuna) {
+		return aktivniRacuni.containsKey(idRacuna);
+	}
 	
 	
 	public List<Racun> getZatvoreniRacuni() {
 		return zatvoreniRacuni;
+	}
+	
+	private Racun getZatvorenRacunPoId(String racunId) {
+		for(Racun r:zatvoreniRacuni) {
+			if(r.getRacunId().equals(racunId))
+				return r;
+		}
+		return null;
 	}
 
 	public void setZatvoreniRacuni(List<Racun> zatvoreniRacuni) {
@@ -197,6 +233,11 @@ public class KupovinaServiceImpl implements KupovinaService, RacunNotificationsS
 		
 	}
 
+
+	
+
+
+	
 	
 	
 }

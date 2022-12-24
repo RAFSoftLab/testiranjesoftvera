@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class TekuciRacun {
@@ -13,7 +14,9 @@ public class TekuciRacun {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;	
 	private String brojRacuna;
-	private double stanje;	
+	private double stanje;
+	@ManyToOne
+	private Kupac kupac;
 	
 	public TekuciRacun() {		
 		
@@ -42,6 +45,22 @@ public class TekuciRacun {
 	
 	public void uplati(double iznos) {
 		stanje+=iznos;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Kupac getKupac() {
+		return kupac;
+	}
+
+	public void setKupac(Kupac kupac) {
+		this.kupac = kupac;
 	}
 	
 	

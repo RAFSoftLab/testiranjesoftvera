@@ -19,10 +19,10 @@ import org.mockito.ArgumentCaptor;
 import trgovina.dtos.ProizvodDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.factories.KupacObjectMother;
+import trgovina.main.KupovinaService;
+import trgovina.main.Prodavnica;
 import trgovina.model.Kupac;
 import trgovina.serviceconsumers.InventarServiceConsumer;
-import trgovina.serviceimpl.KupovinaServiceImpl;
-import trgovina.serviceimpl.Prodavnica;
 import trgovina.serviceimpl.ProdavnicaInventarServiceImpl;
 import trgovina.services.EmailService;
 
