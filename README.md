@@ -7,7 +7,7 @@ Primeri za sledeće predmete na Računarskom fakultetu:
 - Mikroservisne aplikacije (RI - 7. semestar)
 
 
-** Projekat se sastoji od 4 mikroservisa**
+**Projekat se sastoji od 4 mikroservisa**
 
 - testiranjetrgovina - centralni mikroservis koji obezbeđuje sve osnovne informacije u prodavnici, ne koristi bazu, sve podatke čuva u operativnoj memoriji u poljima klasa Prodavnica i KupovinaService,
 - inventar - odgovoran za podatke o stanju (dostupnoj količini) artikala u prodavnici, kao i cene proizvoda, koristi in-memory bazu koja se inicijalizuje  podacima o 4 proizvoda,
