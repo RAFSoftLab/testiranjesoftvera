@@ -65,7 +65,13 @@ public class ProdavnicaInventarServiceImpl implements ProdavnicaInventarService{
 
 	@Override
 	public void umanjiStanjeProizvoda(String proizvod, int umanjenje) {		
-		inventarserviceConsumer.azurirajStanjeInventaraSinh(proizvod, umanjenje);		
+		inventarserviceConsumer.umanjiStanjeInventaraSinh(proizvod, umanjenje);		
+	}
+
+
+	@Override
+	public void uvecajStanjeProizvoda(String proizvod, int uvecanje) {
+		inventarserviceConsumer.uvecajStanjeInventaraSinh(proizvod, uvecanje);		
 	}
 	
 	

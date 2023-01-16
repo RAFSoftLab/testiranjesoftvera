@@ -14,7 +14,7 @@ public class TekuciRacun {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;	
 	private String brojRacuna;
-	private double stanje;
+	private double stanje;	
 	@ManyToOne
 	private Kupac kupac;
 	
@@ -62,6 +62,7 @@ public class TekuciRacun {
 	public void setKupac(Kupac kupac) {
 		this.kupac = kupac;
 	}
+
 	
 	
 

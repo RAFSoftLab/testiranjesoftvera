@@ -56,6 +56,12 @@ public class Kupovina {
 	public void setUplacenIznos(double uplacenIznos) {
 		this.uplacenIznos = uplacenIznos;
 	}
+	public Kupac getKupac() {
+		return kupac;
+	}
+	public void setKupac(Kupac kupac) {
+		this.kupac = kupac;
+	}
 	
 	
 	

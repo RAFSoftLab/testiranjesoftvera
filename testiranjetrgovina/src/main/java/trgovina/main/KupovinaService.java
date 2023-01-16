@@ -31,9 +31,10 @@ public class KupovinaService{
 	
 	private Prodavnica prodavnica;
 	
-	@Autowired
+	
 	private ProdavnicaKupacService kupacService;
 	
+	@Autowired
 	public KupovinaService(Prodavnica prodavnica) {
 		this.prodavnica = prodavnica;		
 		aktivniRacuni = new HashMap<>();
@@ -45,7 +46,8 @@ public class KupovinaService{
 	public void setKupacService(ProdavnicaKupacService kupacService) {
 		this.kupacService = kupacService;
 	}
-
+	
+	
 	/**
 	 * jedan kupac ne moze imati vise aktivnih racuna
 	 */
@@ -68,7 +70,12 @@ public class KupovinaService{
 	}
 	
 	
-	// zatvara racun i vraca njegov id
+	/**
+	 *  zatvara racun i vraca njegov id
+	 * @param idRacuna
+	 * @return
+	 * @throws RacunException
+	 */
 	
 	
 	public String zatvoriRacun(String idRacuna) throws RacunException {
@@ -79,8 +86,7 @@ public class KupovinaService{
 		racunKupca.zatvori();
 		zatvoreniRacuni.add(racunKupca);
 		aktivniRacuni.remove(idRacuna);
-		return racunKupca.getRacunId();
-		
+		return racunKupca.getRacunId();		
 	}
 	
 	/**

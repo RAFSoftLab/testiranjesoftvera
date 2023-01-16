@@ -2,10 +2,12 @@ package trgovina.dtos;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 
 public class RacunDTO {
 	
 	private String imeIPrezimeKupca;
+	private int idKupca;
 	private String racunId;
 	private LocalDate datumKupovine;
 	private String nazivProdavnice;
@@ -83,6 +85,40 @@ public class RacunDTO {
 	}
 	public void setZiroRacunProdavnice(String ziroRacunProdavnice) {
 		this.ziroRacunProdavnice = ziroRacunProdavnice;
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(racunId);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RacunDTO other = (RacunDTO) obj;
+		return Objects.equals(racunId, other.racunId);
+	}
+	
+	public void smanjiKolicinu(String naziv, int kolicina) {
+		if(artikli.get(naziv)!=null) {
+			artikli.put(naziv, artikli.get(naziv)-kolicina);
+		}
+	}
+	public int getIdKupca() {
+		return idKupca;
+	}
+	public void setIdKupca(int idKupca) {
+		this.idKupca = idKupca;
+	}
+	
+	
+	public boolean sadrziProizvodUKolicini(String nazivProizvoda, int kolicina) {
+		if(!artikli.containsKey(nazivProizvoda))
+			return false;
+		return artikli.get(nazivProizvoda)>=kolicina;
 	}
 	
 	

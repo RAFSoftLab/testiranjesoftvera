@@ -295,6 +295,75 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "struktura uplate",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/strukturauplate?idKupca=1&iznosZaUplatu=5000",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"strukturauplate"
+					],
+					"query": [
+						{
+							"key": "idKupca",
+							"value": "1"
+						},
+						{
+							"key": "iznosZaUplatu",
+							"value": "5000"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "kupovina za racun",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/kupovina/PPBIG1075387",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"kupovina",
+						"PPBIG1075387"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "stanje na tekucem racunu",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8082/kupac/tekuciracunstanje/212345678",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"kupac",
+						"tekuciracunstanje",
+						"212345678"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

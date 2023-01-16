@@ -6,18 +6,29 @@ public class KupacDTO {
 	private String ime;
 	private String prezime;
 	private String email;	
+	private double rezervisanaSredstva;
 	
 	public KupacDTO() {		
 	}
 
 
 
+	public KupacDTO(Long id, String ime, String prezime, String email, double rezervisanaSredstva) {
+		super();
+		this.id = id;
+		this.ime = ime;
+		this.prezime = prezime;
+		this.email = email;
+		this.rezervisanaSredstva = rezervisanaSredstva;
+	}
+	
 	public KupacDTO(Long id, String ime, String prezime, String email) {
 		super();
 		this.id = id;
 		this.ime = ime;
 		this.prezime = prezime;
 		this.email = email;
+		this.rezervisanaSredstva = 0.0;
 	}
 
 
@@ -54,6 +65,18 @@ public class KupacDTO {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+
+
+	public double getRezervisanaSredstva() {
+		return rezervisanaSredstva;
+	}
+
+
+
+	public void setRezervisanaSredstva(double rezervisanaSredstva) {
+		this.rezervisanaSredstva = rezervisanaSredstva;
 	}	
 	
 	

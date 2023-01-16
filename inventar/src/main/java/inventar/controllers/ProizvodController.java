@@ -34,35 +34,20 @@ public class ProizvodController {
 	
 	@Operation(summary = "Proizvod po nazivu", description = "Vraca sve podatke o proizvodu sa prosledjenim nazivom")
 	@GetMapping(path="/proizvod")
-	public ProizvodDTO getProizvodPoNazivu(@RequestParam String naziv){
-		// usporimo izvrsavanje za ilustraciju blokirajuceg poziva    	
-		/*
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
-				
+	public ProizvodDTO getProizvodPoNazivu(@RequestParam String naziv){	
 		return inventarService.getProizvodZaNaziv(naziv);
 	}
 	
 	@Operation(summary = "Smanjuje kolicinu proizvoda na stanju", 
 			   description = "Smanjuje broj proizvada u inventaru za vrednost prosledjenog parametra umenjenje, ako ne moze da se smanji jer nema dovoljno na stanju, vraca false, inace true")
 	@PutMapping("/umanji")
-	public boolean smanjiKolicinu(@RequestParam String naziv, @RequestParam int umanjenje){	
-		// usporimo izvrsavanje za ilustraciju blokirajuceg poziva    	
-		/*
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
+	public boolean smanjiKolicinu(@RequestParam String naziv, @RequestParam int umanjenje){		
 		return inventarService.smanjiKolicinuNaStanju(naziv, umanjenje);
+	}
+	
+	@PutMapping("/uvecaj")
+	public boolean uvecajKolicinu(@RequestParam String naziv, @RequestParam int uvecanje){		
+		return inventarService.uvecajKolicinuNaStanju(naziv, uvecanje);
 	}
 	
 	

@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,10 +22,13 @@ public class Kupac {
 	private String ime;
 	private String prezime;
 	private String email;	
-	@OneToMany
+	@Column(nullable = true)
+	private double rezervisanaSredstva;
+	@OneToMany(mappedBy="kupac", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<TekuciRacun> tekuciRacuni = new ArrayList<>();
 	@OneToMany
-	private List<Kupovina> kupovina = new ArrayList<>();
+	private List<Kupovina> kupovine = new ArrayList<>();
+
 	
 	
 	public Kupac() {			
@@ -110,6 +116,22 @@ public class Kupac {
 			rez+=tr.getStanje();
 		}
 		return rez;
+	}
+
+	public List<Kupovina> getKupovine() {
+		return kupovine;
+	}
+
+	public void setKupovine(List<Kupovina> kupovine) {
+		this.kupovine = kupovine;
+	}
+
+	public double getRezervisanaSredstva() {
+		return rezervisanaSredstva;
+	}
+
+	public void setRezervisanaSredstva(double rezervisanaSredstva) {
+		this.rezervisanaSredstva = rezervisanaSredstva;
 	}
 		
 	

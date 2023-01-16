@@ -49,5 +49,13 @@ public class InventarService {
 		return false;				
 	}
 	
+	public boolean uvecajKolicinuNaStanju(String naziv, int uvecanje){
+		List<Proizvod> proizvodi = proizvodRepo.vratiProizvodZaNaziv(naziv);
+		Proizvod p = proizvodi.get(0);		
+		p.setStanje(p.getStanje()+uvecanje);
+		proizvodRepo.save(p);
+		return true;				
+	}
+	
 
 }
