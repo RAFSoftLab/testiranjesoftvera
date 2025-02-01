@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import trgovina.dtos.KupacDTO;
 import trgovina.dtos.KupovinaDTO;
+import trgovina.dtos.RezervacijaDTO;
 import trgovina.dtos.UplataDTO;
 import trgovina.serviceconsumers.KupacServiceConsumer;
 import trgovina.services.ProdavnicaKupacService;
@@ -79,6 +80,21 @@ public class ProdavnicaKupacServiceImpl implements ProdavnicaKupacService {
     @Override
     public String vratiRacunZaIsplatu(int kupacId, double iznosZaUplatu) {
         return kupacServiceConsumer.vratiRacunSaDovoljnoSredstava(Long.valueOf(kupacId), iznosZaUplatu);
+    }
+
+    @Override
+    public void dodajRezervaciju(RezervacijaDTO rezervacija) {
+        kupacServiceConsumer.dodajRezervaciju(rezervacija);
+    }
+
+    @Override
+    public void obrisiRezervaciju(long rezervacijaID) {
+        kupacServiceConsumer.obrisiRezervaciju(rezervacijaID);
+    }
+
+    @Override
+    public RezervacijaDTO vratiRezervacijuZaId(long rezervacijaID) {
+        return kupacServiceConsumer.vratiRezervacijuZaId(rezervacijaID);
     }
 
 

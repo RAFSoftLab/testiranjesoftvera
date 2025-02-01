@@ -2,6 +2,8 @@ package kupac.controllers;
 
 import java.util.List;
 
+import kupac.dtos.RezervacijaDTO;
+import kupac.services.RezervacijaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,12 +30,13 @@ public class KupacController {
 	private KupacService kupacService;	
 	private KupovinaRepository kupovinaRepo;
 	private KupovinaService kupovinaService;
-	
+	private RezervacijaService rezervacijaService;
 	@Autowired
 	public KupacController(KupacService kupacService, KupovinaService kupovinaService, KupovinaRepository kupovinaRepo) {
 		this.kupacService = kupacService;
 		this.kupovinaService = kupovinaService;
-		this.kupovinaRepo = kupovinaRepo;		
+		this.kupovinaRepo = kupovinaRepo;
+		this.rezervacijaService = rezervacijaService;
 	}
 	
 	@PostMapping("/registracija")
@@ -103,9 +106,24 @@ public class KupacController {
 		kupacService.sacuvajKupovinu(kupovina);
 	}
 
-	@GetMapping("/racunzauplatu")
-	public String vratiRacunZaUplatu(@RequestParam Long idKupca, @RequestParam double iznosZaUplatu) {
-		return kupacService.vratiRacunNaKomeImaDovoljnoSredstava(idKupca, iznosZaUplatu);
+	@PostMapping("/dodajrezervaciju")
+	public boolean dodajRezervaciju(@RequestBody RezervacijaDTO rezervacija) {
+		return rezervacijaService.sacuvajRezervaciju(rezervacija);
+	}
+
+	@GetMapping ("/sverezervacije")
+	public List<RezervacijaDTO> sveRezervacije (){
+		return rezervacijaService.getAllRezervacije();
+	}
+
+	@DeleteMapping("/obrisirezervaciju")
+	public void obrisiRezervaciju(Long idRezervacija){
+		rezervacijaService.obrisiRezeraviciju(idRezervacija);
+	}
+
+	@GetMapping("/rezervacija/{id}")
+	public RezervacijaDTO vratiRezervaciju(@PathVariable Long id) {
+		return rezervacijaService.vratiZaId(id);
 	}
 	
 }

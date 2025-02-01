@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import trgovina.dtos.KupacDTO;
-import trgovina.dtos.KupovinaDTO;
-import trgovina.dtos.RacunDTO;
-import trgovina.dtos.UplataDTO;
+import trgovina.dtos.*;
 import trgovina.izuzeci.InventarException;
 import trgovina.model.ProizvodKolicina;
 import trgovina.model.Racun;
@@ -486,6 +483,88 @@ public class Prodavnica {
             }
         }
         return retVal;
+    }
+
+    /**
+     * Operacija izvrsava rezervaciju odredjenog proizvoda za koji ne postoji dovoljna kolicina u prodavnici.
+     * Prosledjuje se id kupca (@param kupacId) koji vrsi rezervaciju, naziv  proizvoda (@nazivProizvoda) koji se rezervise i kolicina (@param kolicina).
+     * <p>
+     * Operacija vraca true ako je rezervicija uspesna, inace false.
+     * <p>
+     * Prosledjeni podaci moraju biti validni, inace se prosledjuje izuzetak IllegalArgumentException sa porukom 'Nevalidni ulazni podaci'.
+     * <p>
+     * Najpre se pronalazi kupac na osnovu prosledjenog id kupca preko kupac servisa, u slucaju da trazeni kupac ne postoji, prosledjuje se
+     * izuzetak IllegalArgumentException sa porukom 'Kupac ne postoji'.
+     * <p>
+     * Sam proizvod mora da postoji u inventaru, inace se rezervacija smatra neuspesnom, a kupcu se salje e-mail sa porukom 'Trazeni proizvod ne postoji'.
+     * Provere postojanje proizvoda i stanja se rade preko inventar servisa.
+     * <p>
+     * Rezervacija je iskljucivo moguca za proizvod za koji ne postoji dovoljna kolicina, inace se rezervacija smatra neuspesnom,
+     * a kupcu se salje e-mail sa porukom 'Postoji dovoljna kolicina proizvoda i nije neophodna rezervacija'.
+     * <p>
+     * Nakon izracunavanja ukupne cene za zeljenu rezervaciju i obracuna popusta za kupca (preko servisa lojalnost),
+     * proverava se da li kupac ima potrebnu strukturu uplate za rezervaciju, u slucaju da nema
+     * rezervacija je neuspesna, a kupcu se salje e-mail sa porukom 'Nemate dovoljno sredstava na racunu'. U slucaju da postoji
+     * struktura uplate kreira se rezervacija koja se cuva za zeljenog kupca i izvrsava se uplata po strukturi uplate.
+     * Na kraju se kupcu salje e-mail sa porukom 'Rezervacija je izvrsena', a sama rezervacija se smatra uspesnom.
+     */
+
+    public boolean rezervisiProizvod(int kupacId, String nazivProizvoda, int kolicina) {
+
+        if (kupacId <= 0 || nazivProizvoda == null || nazivProizvoda.isEmpty() || kolicina <= 0) {
+            throw new IllegalArgumentException("Nevalidni ulazni podaci");
+        }
+
+        KupacDTO kupac = kupacService.kupacZaId(kupacId);
+        if (kupac == null) {
+            throw new IllegalArgumentException("Kupac ne postoji");
+        }
+        String naslov = "rezervacija za kupca: " + kupac.getIme() + " " + kupac.getPrezime() + " " + kupac.getId();
+        String poruka = "";
+
+
+        if (!inventarService.vratiSveNaziveProizvoda().contains(nazivProizvoda)) {
+            naslov = "Neuspesna " + naslov;
+            poruka = "Trazeni proizvod ne postoji";
+            emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+            return false;
+        }
+
+
+        if (inventarService.vratiStanjeZaProizvod(nazivProizvoda) >= kolicina) {
+            naslov = "Neuspesna " + naslov;
+            poruka = "Postoji dovoljna kolicina proizvoda i nije neophodna rezervacija";
+            emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+            return false;
+        }
+
+        double cenaProizvoda = inventarService.vratiCenuZaProizvod(nazivProizvoda);
+        int popust = lojalnostService.vratiPopustZaKupca(kupac.getEmail());
+        double ukupnaCena = cenaProizvoda * kolicina * (1 - popust / 100.0);
+
+        List<UplataDTO> strukturaUplate = kupacService.vratiStrukturuUplate(kupacId, ukupnaCena);
+        if (strukturaUplate.isEmpty()) {
+            naslov = "Neuspesna " + naslov;
+            poruka = "Nemate dovoljno sredstava na racunu";
+            emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+            return false;
+        }
+
+        RezervacijaDTO rezervacija = new RezervacijaDTO();
+        rezervacija.setKupac(kupac.getId());
+        rezervacija.setNazivProizvoda(nazivProizvoda);
+        rezervacija.setKolicina(kolicina);
+        kupacService.dodajRezervaciju(rezervacija);
+
+        for (UplataDTO uplata : strukturaUplate) {
+            kupacService.smanjiStanjeNaRacunu(uplata.getTekuciRacun(), uplata.getUplatiti());
+        }
+
+        naslov = "Uspesna " + naslov;
+        poruka = "Rezervacija je izvrsena";
+        emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+        return true;
+
     }
 
 

@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import trgovina.dtos.KupacDTO;
-import trgovina.dtos.KupovinaDTO;
-import trgovina.dtos.ProizvodDTO;
-import trgovina.dtos.UplataDTO;
+import trgovina.dtos.*;
 
 @RestController
 public class KupacServiceConsumer {
@@ -111,9 +108,24 @@ public class KupacServiceConsumer {
 			return null;
 		return rez;
 	}
-	
-	
-	
-	
+
+
+	public void dodajRezervaciju(RezervacijaDTO rezervacijaDTO){
+		restTemplate.postForEntity(createURL("dodajrezervaciju"), rezervacijaDTO, null);
+	}
+
+
+	public void obrisiRezervaciju(Long idRezervacija){
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURL("obrisirezervaciju"));
+		builder.queryParam("idRezervacija", idRezervacija);
+		restTemplate.delete(builder.toUriString());
+	}
+
+	public RezervacijaDTO vratiRezervacijuZaId(Long id) {
+		return restTemplate.getForObject(createURL("rezervacija/" + id), RezervacijaDTO.class);
+
+	}
+
+
 
 }
