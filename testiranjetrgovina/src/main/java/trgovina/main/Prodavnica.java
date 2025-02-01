@@ -15,6 +15,7 @@ import trgovina.dtos.KupovinaDTO;
 import trgovina.dtos.RacunDTO;
 import trgovina.dtos.UplataDTO;
 import trgovina.izuzeci.InventarException;
+import trgovina.model.ProizvodKolicina;
 import trgovina.model.Racun;
 import trgovina.services.EmailService;
 import trgovina.services.PlacanjeService;
@@ -338,6 +339,32 @@ public class Prodavnica {
     }
 
 
+    /**
+     * Operacija izvrsava placanje prosledjenog racuna (@param racun) od strane više kupaca. Bez obzira koji id kupca stoji na računu,
+     * plaćanje se deli na kupce prema procentu plaćanja koji je prosleđen u @param procentiKupca. U mapi se kao
+     * ključ prosleđuje id kupca, a vrednost je procenat iznosa na računu koji taj kupac plaća
+     * <p>
+     * Operacija vraća u mapi za svakog id kupca koji iznos je uplatio.
+     * <p>
+     * Prosledjeni racun mora da postoji u listi izdatih racuna. Takođe, zbir svih procenata plaćanja za kupce mora biti 100,
+     * inače se prosleđuje izuzetak IllegalArgumentException.
+     * <p>
+     * Prvo se obracunava ukupan iznos za uplatu koji se dobija tako što se iz računa preuzme ukupna cena sa pdv-om i na nju
+     * se obračuna najveći popust svih kupaca koji učestvuju u uplati. Popust za svakog kupca se preuzima iz servisa lojalnosti.
+     * <p>
+     * Zatim se za svakog kupca preko kupac servisa preuzima njegov tekući račun na kome ima dovoljno sredstava da se izvrši
+     * uplata njegovog procenta računa. Ako barem za jednog kupca ne postoji takav račun, plaćanje se ne može izvršiti
+     * ni sa jednog dela računa, ni za jednog kupca, metoda vraća null.
+     * <p>
+     * Ako svi kupci imaju račun sa dovoljno sredstava, vrši se plaćanje preko servisa koji još uvek nije implementiran.
+     * Plaćanje se vrši za svakog kupca posebno, sa tekuceg racuna kupca na racuna prodavnice sa id-jem racuna kao pozivom na broj.
+     * Kao uplatilac se prosleđuje ime i prezime kupca, a iznos se obračunava procenatualno za svakog kupca.
+     * <p>
+     * Ako je servis za plaćanje vratio da je uspesna uplata, preko kupac servisa se smanjuju sredstva na tekucem racunu
+     * za uplaceni iznos i uplata se evidetira u rezultujućoj mapi.
+     */
+
+
     public Map<Integer, Double> deljenoPlacanjeRacunaProcenti(RacunDTO racun, Map<Integer, Double> procentiKupca) throws IllegalArgumentException {
         if (!izdatiRacuni.contains(racun))
             throw new IllegalArgumentException("Ne postoji racun");
@@ -367,6 +394,89 @@ public class Prodavnica {
             racuniKupca.put(tekuciRacun, idKupca);
         }
         Map<Integer, Double> retVal = new HashMap<>();
+        for (String tRacun : tekuciRacuniZaUplatu.keySet()) {
+            KupacDTO kupac = kupacService.kupacZaId(racuniKupca.get(tRacun));
+            boolean uspesno = placanjeService.plati(kupac.getIme() + kupac.getPrezime(), tRacun, ziroRacunProdavnice, racun.getRacunId(), tekuciRacuniZaUplatu.get(tRacun));
+            if (uspesno) {
+                kupacService.smanjiStanjeNaRacunu(tRacun, tekuciRacuniZaUplatu.get(tRacun));
+                retVal.put(racuniKupca.get(tRacun), tekuciRacuniZaUplatu.get(tRacun));
+            }
+        }
+        return retVal;
+    }
+
+
+    /**
+     * Operacija izvrsava placanje prosledjenog racuna (@param racun) od strane više kupaca gde svaki kupac plaća određenu
+     * listu proizvoda sa računa.  Bez obzira koji id kupca stoji na računu, plaćanje se deli na kupce prema mapi koja
+     * je prosleđena u @param artikliKupca. U mapi se kao ključ prosleđuje idKupca, a vrednosti su lista proizvoda sa količinima
+     * koje taj kupac plaća sa računa.
+     * <p>
+     * Operacija vraća u mapi za svakog id kupca koji iznos je uplatio.
+     * <p>
+     * Prosledjeni racun mora da postoji u listi izdatih racuna. Takođe, ukupna količina svih proizvoda u prosleđenoj mapi treba
+     * da odgovara količini kupljenih proizvoda na računu, inače se prosleđuje izuzetak IllegalArgumentException.
+     * <p>
+     * Svaki kupac plaća ukupnu cenu svih svojih proizvoda sa obračunatim pdv-om od 20% i svima se obračunava isti popust,
+     * a to je najmanji popust kupaca iz prosleđene mape. Ako barem jedan od prosleđenih kupaca nema popust, ne obračunava
+     * se popust nikome.
+     * <p>
+     * Za svakog kupca se preko kupac servisa preuzima njegov tekući račun na kome ima dovoljno sredstava da se izvrši
+     * uplata njegovih proizvoda. Ako barem za jednog kupca ne postoji takav račun, plaćanje se ne može izvršiti
+     * ni sa jednog dela računa,ni za jednog kupca, metoda vraća null.
+     * <p>
+     * Ako svi kupci imaju račun sa dovoljno sredstava, vrši se plaćanje preko servisa koji još uvek nije implementiran.
+     * Plaćanje se vrši sa tekuceg racuna kupca na racuna prodavnice sa id-jem racuna kao pozivom na broj.
+     * Kao uplatilac se prosleđuje ime i prezime kupca, a iznos prethodno obračunata cena za izabrane proizvode kupca.
+     * <p>
+     * Ako je servis za plaćanje vratio da je uspesna uplata, preko kupac servisa se smanjuju sredstva na tekucem racunu
+     * za uplaceni iznos i uplata se evidetira u rezultujućoj mapi.
+     */
+
+
+    public Map<Integer, Double> deljenoPlacanjeRacunaArtikli(RacunDTO racun, Map<Integer, List<ProizvodKolicina>> artikliKupca) throws IllegalArgumentException {
+        if (!izdatiRacuni.contains(racun))
+            throw new IllegalArgumentException("Ne postoji racun");
+
+        Map<String, Integer> artikliZaPlacanje = new HashMap<>();
+        for (List<ProizvodKolicina> pkList : artikliKupca.values()) {
+            for (ProizvodKolicina pk : pkList) {
+                if (!artikliZaPlacanje.containsKey(pk.getNazivProizvoda()))
+                    artikliZaPlacanje.put(pk.getNazivProizvoda(), pk.getKolicina());
+                else
+                    artikliZaPlacanje.put(pk.getNazivProizvoda(), artikliZaPlacanje.get(pk.getNazivProizvoda()) + pk.getKolicina());
+            }
+        }
+        // provera da li je ukupna kolicina odgovara onoj na računu za svaki proizvod
+        for (String proizvod : artikliZaPlacanje.keySet()) {
+            if (racun.getArtikli().get(proizvod) != artikliZaPlacanje.get(proizvod))
+                throw new IllegalArgumentException("Pogresna kolicina artikala");
+        }
+
+        int najmanjiPopust = 100;
+        for (Integer kupacId : artikliKupca.keySet()) {
+            KupacDTO kupac = kupacService.kupacZaId(kupacId);
+            int popust = lojalnostService.vratiPopustZaKupca(kupac.getEmail());
+            if (popust < najmanjiPopust)
+                najmanjiPopust = popust;
+        }
+        Map<Integer, Double> retVal = new HashMap<>();
+        Map<String, Double> tekuciRacuniZaUplatu = new HashMap<>();
+        Map<String, Integer> racuniKupca = new HashMap<>();
+        for (int idKupca : artikliKupca.keySet()) {
+            double uplataZaKupca = 0.0;
+            for (ProizvodKolicina pk : artikliKupca.get(idKupca)) {
+                double cena = inventarService.vratiCenuZaProizvod(pk.getNazivProizvoda());
+                uplataZaKupca += pk.getKolicina() * cena * 1.2;
+            }
+            uplataZaKupca = uplataZaKupca * (100 - najmanjiPopust) / 100;
+            // preuzimamo racun kupca na kome ima dovoljno sredstava
+            String tekuciRacun = kupacService.vratiRacunZaIsplatu(idKupca, uplataZaKupca);
+            if (tekuciRacun == null)
+                return null;
+            tekuciRacuniZaUplatu.put(tekuciRacun, uplataZaKupca);
+            racuniKupca.put(tekuciRacun, idKupca);
+        }
         for (String tRacun : tekuciRacuniZaUplatu.keySet()) {
             KupacDTO kupac = kupacService.kupacZaId(racuniKupca.get(tRacun));
             boolean uspesno = placanjeService.plati(kupac.getIme() + kupac.getPrezime(), tRacun, ziroRacunProdavnice, racun.getRacunId(), tekuciRacuniZaUplatu.get(tRacun));
