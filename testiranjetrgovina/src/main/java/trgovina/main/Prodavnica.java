@@ -567,5 +567,85 @@ public class Prodavnica {
 
     }
 
+    /**
+     * Operacija otkazuje rezervaciju odredjenog proizvoda na osnovu prosledjenog id-a rezervacije  (@param rezervacijaID).
+     * <p>
+     * Prosledjeni id rezervacije mora biti veci od 0, inace se prosledjuje izuzetak IllegalArgumentException sa porukom 'Nevalidan ID rezervacije'.
+     * <p>
+     * Najpre se pronalazi rezervacija, na osnovu ID-a, u slucaju da trazena rezervacija ne postoji, prosledjuje se
+     * izuzetak IllegalArgumentException sa porukom 'Rezervacija ne postoji'.
+     * <p>
+     * Rezervacija se odnosi samo na jednog kupca, dok kupac moze imati vise rezervacija.
+     * Iz podataka o rezervaciji dobija se id kupca i proverava se da li postoji kupac sa datim id-em preko kupac servisa.
+     * U slucaju da kupac ne postoji prosledjuje se izuzetak IllegalArgumentException sa porukom 'Kupac ne postoji'.
+     * <p>
+     * Sam proizvod mora da postoji u prodavnici (proverava se preko servisa inventar), inace se otkazivanje rezervacije smatra neuspesnim, a kupcu se salje e-mail sa porukom 'Trazeni proizvod ne postoji'.
+     * <p>
+     * Na rezervaciji kolicina proizvoda mora biti veca od nule,  inace je otkazivanje neuspesno, a kupcu se salje e-mail sa porukom 'Nevalidna kolicina'.
+     * <p>
+     * Ako je validna rezervacija, rezervacija se brise preko kupac servisa i iznos cene proizvoda na rezervaciji se uplacuje kupcu na racun.
+     * <p>
+     * Ukupna cena proizvoda se najpre dobije preko inventar servisa, a nakon toga za nju se obracunava popust za kupac (lojalnost servis) i takva cena se uplacuje kupcu na racun
+     * putem kupac servisa.
+     * <p>
+     * Na kraju kupcu se salje e-mail sa porukom 'Rezervacija je otkazana', a samo oktazivanje rezervacije se smatra uspesnom.
+     */
+    public boolean otkaziRezervaciju(long rezervacijaID) {
+
+        if (rezervacijaID <= 0) {
+            throw new IllegalArgumentException("Nevalidan ID rezervacije");
+        }
+
+        RezervacijaDTO rezervacija = kupacService.vratiRezervacijuZaId(rezervacijaID);
+        if (rezervacija == null) {
+            throw new IllegalArgumentException("Rezervacija ne postoji");
+        }
+
+
+        KupacDTO kupac = kupacService.kupacZaId(rezervacija.getKupacId().intValue());
+
+        if (kupac == null) {
+            throw new IllegalArgumentException("Kupac ne postoji");
+        }
+
+        String naslov = "Otkazivanje rezervacije za kupca: " + kupac.getIme() + " " + kupac.getPrezime() + " " + kupac.getId();
+        String poruka = "";
+
+
+        if (!inventarService.vratiSveNaziveProizvoda().contains(rezervacija.getNazivProizvoda())) {
+
+            naslov = "Neuspesna " + naslov;
+            poruka = "Trazeni proizvod ne postoji";
+            emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+            return false;
+        }
+
+
+        if (rezervacija.getKolicina() <= 0) {
+            naslov = "Neuspesno " + naslov;
+            poruka = "Nevalidna kolicina";
+            emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+            return false;
+        }
+
+        kupacService.obrisiRezervaciju(rezervacija.getRezervacijaId());
+
+
+        String tekuciRacun = kupacService.vratiTekuciRacunZaIdKupca(rezervacija.getKupacId().intValue());
+
+        double cenaProizvoda = inventarService.vratiCenuZaProizvod(rezervacija.getNazivProizvoda());
+        int popust = lojalnostService.vratiPopustZaKupca(kupac.getEmail());
+        double ukupnaCena = cenaProizvoda * rezervacija.getKolicina() * (1 - popust / 100.0);
+
+        kupacService.povecajStanjeNaRacunu(tekuciRacun, ukupnaCena);
+
+
+        naslov = "Uspesno " + naslov;
+        poruka = "Rezervacija je otkazana";
+        emailService.sendEmail(kupac.getEmail(), naslov, poruka);
+
+        return true;
+    }
+
 
 }
