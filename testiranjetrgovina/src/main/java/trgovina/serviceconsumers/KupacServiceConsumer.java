@@ -101,6 +101,16 @@ public class KupacServiceConsumer {
 			return null;  	    		  
 		
 	}
+
+	public String vratiRacunSaDovoljnoSredstava(Long kupacId, double iznosZaUplatu) {
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURL("racunzauplatu"));
+		builder.queryParam("idKupca", kupacId);
+		builder.queryParam("iznosZaUplatu", iznosZaUplatu);
+		String rez = restTemplate.getForObject(builder.toUriString(),String.class);
+		if(rez==null || rez.equals(""))
+			return null;
+		return rez;
+	}
 	
 	
 	

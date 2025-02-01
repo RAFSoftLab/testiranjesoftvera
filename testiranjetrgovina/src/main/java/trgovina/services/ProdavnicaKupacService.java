@@ -28,4 +28,5 @@ public interface ProdavnicaKupacService {
 	
 	public KupovinaDTO vratiKupovinuZaRacunId(String racunId);
 
+	public String vratiRacunZaIsplatu(int kupacId, double iznosZaUplatu);
 }

@@ -11,12 +11,12 @@ import lojalnost.repositories.BrojKupovinaRepository;
 
 @Service
 public class RegistracijaConsumer {
-	
-	
+
+
 	private BrojKupovinaRepository brojKupovinaRepo;
-	
-	
-	@Autowired	
+
+
+	@Autowired
 	public void setBrojKupovinaRepo(BrojKupovinaRepository brojKupovinaRepo) {
 		this.brojKupovinaRepo = brojKupovinaRepo;
 	}
@@ -30,8 +30,8 @@ public class RegistracijaConsumer {
         
     }
     */
-	
-	
-	
+
+
+
 
 }

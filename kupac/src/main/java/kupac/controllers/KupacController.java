@@ -102,6 +102,10 @@ public class KupacController {
 	public void sacuvajKupovinu(@RequestBody KupovinaDTO kupovina) {
 		kupacService.sacuvajKupovinu(kupovina);
 	}
-	
+
+	@GetMapping("/racunzauplatu")
+	public String vratiRacunZaUplatu(@RequestParam Long idKupca, @RequestParam double iznosZaUplatu) {
+		return kupacService.vratiRacunNaKomeImaDovoljnoSredstava(idKupca, iznosZaUplatu);
+	}
 	
 }
