@@ -12,13 +12,13 @@ import com.rabbitmq.client.Consumer;
 
 @Configuration
 public class LojalnostConfiguration {
-	
+
 	@Value("${queue.name}")
 	private String queueName;
 
-	
-	
-	
+
+
+
 
 
 }

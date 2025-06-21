@@ -142,8 +142,14 @@ public class KupacService {
 		else
 			return 0.0;
 	}
-	
-	
-	
-		
+
+	public String vratiRacunNaKomeImaDovoljnoSredstava(Long idKupca, double iznos){
+		List<TekuciRacun> rez = tekuciRacunRepo.vratiTekuciRacunKupcaIStanjeVeceOdIznosa(idKupca, iznos);
+		if(rez.size()==0)
+			return "";
+		return rez.get(0).getBrojRacuna();
+	}
+
+
+
 }
